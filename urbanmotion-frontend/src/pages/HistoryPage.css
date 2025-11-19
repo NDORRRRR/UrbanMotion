@@ -1,0 +1,67 @@
+.history-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.history-card {
+  background: white;
+  border: 1px solid var(--main-grey);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.history-info h3 {
+  margin: 0 0 5px 0;
+  color: var(--main-dark);
+}
+
+.history-date {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Badge Status */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #b45309; /* Kuning */
+}
+
+.status-legit {
+  background-color: #d1fae5;
+  color: #065f46; /* Hijau */
+  border: 1px solid #10b981;
+}
+
+.status-fake {
+  background-color: #fee2e2;
+  color: #991b1b; /* Merah */
+  border: 1px solid var(--main-red);
+}
+
+.history-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-right: 15px;
+  border: 1px solid #eee;
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+}

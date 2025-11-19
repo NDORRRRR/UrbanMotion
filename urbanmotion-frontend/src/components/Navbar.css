@@ -1,0 +1,73 @@
+.navbar {
+  background-color: var(--main-white);
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--main-grey);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--main-red); /* Pakai warna tema kita! */
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--main-dark);
+  font-weight: 500;
+}
+.nav-link:hover {
+  color: var(--main-red);
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Tombol Login/Register di Navbar */
+.nav-link-btn {
+  background-color: var(--main-dark);
+  color: var(--main-white);
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.nav-link-btn:hover {
+  background-color: #333;
+}
+
+/* Tombol Logout di Navbar */
+.nav-logout-btn {
+  background-color: var(--main-red);
+  color: var(--main-white);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.nav-logout-btn:hover {
+  background-color: var(--main-red-dark);
+}

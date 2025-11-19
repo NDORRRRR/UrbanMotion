@@ -1,0 +1,92 @@
+.forum-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* Header & Tombol */
+.forum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--main-grey);
+  padding-bottom: 1rem;
+}
+
+.btn-create-thread {
+  background-color: var(--main-red);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+/* Kartu Thread (List) */
+.thread-card {
+  background: white;
+  border: 1px solid var(--main-grey);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.thread-card:hover {
+  border-color: var(--main-red);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.thread-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+.thread-author {
+  color: var(--main-dark);
+  font-weight: bold;
+}
+.thread-category {
+  background-color: #eee;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+/* Halaman Detail */
+.thread-detail {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--main-grey);
+  margin-bottom: 2rem;
+}
+.thread-content {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-top: 1rem;
+  white-space: pre-wrap; /* Biar enter terbaca */
+}
+
+/* Bagian Komentar */
+.comments-section {
+  margin-top: 3rem;
+}
+.comment-card {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--main-grey);
+}
+.reply-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--main-grey);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  resize: vertical;
+}
