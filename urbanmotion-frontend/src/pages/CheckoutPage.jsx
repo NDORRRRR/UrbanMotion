@@ -1,9 +1,7 @@
-// src/pages/CheckoutPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-// Midtrans wajib ada di browser
 const loadMidtransScript = () => {
     return new Promise((resolve) => {
         if (window.snap) {
@@ -12,7 +10,7 @@ const loadMidtransScript = () => {
         }
         const script = document.createElement('script');
         script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'; // Sandbox URL
-        script.setAttribute('data-client-key', 'Mid-client-WAQ7tAcoBl-k3nZU');
+        script.setAttribute('data-client-key', 'Mid-client-WAQ7lACoB1-k3NZU'); 
         script.onload = resolve;
         document.body.appendChild(script);
     });
@@ -22,12 +20,14 @@ function CheckoutPage() {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [shippingAddress, setShippingAddress] = useState('');
+    
+    const [recipientName, setRecipientName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const finalAmount = subtotal; // Belum termasuk ongkir
+    const finalAmount = subtotal;
 
-    // 1. Ambil Data Keranjang saat halaman dibuka
     useEffect(() => {
         const fetchCartAndScripts = async () => {
             try {
@@ -39,7 +39,6 @@ function CheckoutPage() {
                 }
                 setCartItems(response.data);
                 
-                // Load Midtrans Script di sini
                 await loadMidtransScript();
 
             } catch (error) {
@@ -61,37 +60,36 @@ function CheckoutPage() {
         }).format(price);
     };
 
-    // 2. Logic Final Checkout (Panggil API Backend)
     const handleCheckout = async (e) => {
         e.preventDefault();
-        if (!shippingAddress) {
-            alert('Alamat pengiriman wajib diisi!');
+        
+        if (!recipientName || !phone || !address) {
+            alert('Semua detail alamat wajib diisi!');
             return;
         }
+        
+        const fullAddressPayload = `Penerima: ${recipientName} | HP: ${phone} | Alamat: ${address}`;
 
         const itemsPayload = cartItems.map(item => ({
             product_id: item.product_id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            seller_id: 1, // ⚠️ ASUMSI: Seller ID 1 adalah ID Admin/Penjual Utama. Bos harus sesuaikan.
+            seller_id: 1,
         }));
         
         try {
-            // Panggil API Backend (yang akan memanggil Midtrans)
-            const response = await api.post('/checkout', { 
-                shipping_address: shippingAddress,
+            const response = await api.post('/checkout/', {
+                shipping_address: fullAddressPayload,
                 total_amount: finalAmount,
                 payment_method: 'midtrans_snap',
                 items: itemsPayload,
             }); 
             const { snap_token, orderId } = response.data;
 
-            // 3. Buka Pop-up Midtrans SNAP
             window.snap.pay(snap_token, {
                 onSuccess: function(result) {
                     alert(`Pembayaran Sukses! Order ID: ${orderId}`);
-                    // ⚠️ Lanjut: Update status order di DB (BUTUH API BARU)
                     navigate('/history');
                 },
                 onPending: function(result) {
@@ -107,7 +105,8 @@ function CheckoutPage() {
             });
 
         } catch (error) {
-            alert(error.response?.data?.message || 'Gagal memproses Checkout.');
+            console.error('Error saat checkout:', error.response?.data || error.message);
+            alert(error.response?.data?.message || 'Gagal memproses pembayaran. Cek log server.');
         }
     };
 
@@ -120,15 +119,36 @@ function CheckoutPage() {
             
             <form onSubmit={handleCheckout} style={{display:'flex', gap:'30px'}}>
                 
-                {/* Kolom Kiri: Alamat & Item */}
                 <div style={{flex: 2}}>
                     
                     <h3>1. Alamat Pengiriman</h3>
                     <div className="form-group">
+                        <label>Nama Penerima</label>
+                        <input 
+                            type="text" 
+                            className="lc-input"
+                            value={recipientName}
+                            onChange={(e) => setRecipientName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Nomor HP</label>
+                        <input 
+                            type="tel" 
+                            className="lc-input"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="Contoh: 081234567890"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Alamat Lengkap</label>
                         <textarea 
-                            value={shippingAddress}
-                            onChange={(e) => setShippingAddress(e.target.value)}
-                            placeholder="Masukkan alamat lengkap, termasuk nama penerima dan nomor HP."
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Jalan, Nomor Rumah, RT/RW, Kecamatan, Kota"
                             rows="4" 
                             required
                         ></textarea>
@@ -146,8 +166,7 @@ function CheckoutPage() {
                         </div>
                     ))}
                 </div>
-
-                {/* Kolom Kanan: Pembayaran */}
+                
                 <div style={{flex: 1, backgroundColor:'#f9fafb', padding:'1.5rem', borderRadius:'8px', height: 'fit-content'}}>
                     <h3>3. Ringkasan Pembayaran</h3>
                     <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>
