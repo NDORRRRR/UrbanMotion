@@ -2,8 +2,7 @@ const axios = require('axios');
 const db = require('../config/db');
 require('dotenv').config();
 
-// Midtrans Config (Sandbox)
-const MIDTRANS_BASE_URL = 'https://api.sandbox.midtrans.com/v2/charge'; // URL untuk Snap API
+const MIDTRANS_BASE_URL = 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 const MIDTRANS_AUTH = Buffer.from(process.env.MIDTRANS_SERVER_KEY + ':').toString('base64');
 
 exports.createTransaction = async (req, res) => {

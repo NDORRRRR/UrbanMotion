@@ -1,28 +1,34 @@
 const db = require('../config/db');
 
+// 1. Ambil Isi Keranjang User
 exports.getCart = async (req, res) => {
   const userId = req.user.id;
   try {
+    // KODE BARU: Tidak ada 'p.image_url', tapi pakai SUBSTRING_INDEX
     const query = `
       SELECT 
-        c.product_id, c.quantity, p.name, p.price, p.stock,
-        -- Ambil URL gambar pertama dari tabel images
+        c.product_id, c.quantity, 
+        p.name, p.price, p.stock, 
+        p.seller_id,  -- WAJIB ADA (Biar checkout tidak error 500)
         SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) AS image_url 
       FROM carts c
       JOIN products p ON c.product_id = p.id
       LEFT JOIN product_images pi ON p.id = pi.product_id
       WHERE c.user_id = ?
-      -- Pastikan semua kolom yang dipilih di-GROUP BY
-      GROUP BY c.product_id, c.quantity, p.name, p.price, p.stock 
+      GROUP BY 
+        c.product_id, c.quantity, 
+        p.name, p.price, p.stock, 
+        p.seller_id
     `;
     const [items] = await db.query(query, [userId]);
     res.json(items);
   } catch (error) {
-    console.error('Error saat getCart:', error); // Log error asli
-    res.status(500).json({ message: 'Gagal mengambil keranjang. Hubungi admin.' });
+    console.error('Error saat getCart:', error);
+    res.status(500).json({ message: 'Gagal mengambil keranjang. Cek log server.' });
   }
 };
 
+// 2. Tambah/Update Barang di Keranjang
 exports.updateCart = async (req, res) => {
   const userId = req.user.id;
   const { productId, quantity } = req.body;
@@ -32,32 +38,29 @@ exports.updateCart = async (req, res) => {
   }
 
   try {
-    // A. Cek Ketersediaan Stok
+    // A. Cek Stok
     const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [productId]);
     if (productRows.length === 0) {
       return res.status(404).json({ message: 'Produk tidak ditemukan.' });
     }
     const availableStock = productRows[0].stock;
 
-    // B. VALIDASI STOK TERAKHIR
     if (quantity > availableStock) {
       return res.status(400).json({ message: `Stok hanya tersedia ${availableStock} unit.` });
     }
 
-    // C. Cek apakah barang sudah ada di keranjang?
+    // B. Update Database
     const [existing] = await db.query(
       `SELECT * FROM carts WHERE user_id = ? AND product_id = ?`,
       [userId, productId]
     );
 
     if (existing.length > 0) {
-      // Jika sudah ada, UPDATE quantity
       await db.query(
         `UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?`,
         [quantity, userId, productId]
       );
     } else {
-      // Jika belum ada, INSERT baru
       await db.query(
         `INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?, ?)`,
         [userId, productId, quantity]
@@ -71,6 +74,7 @@ exports.updateCart = async (req, res) => {
   }
 };
 
+// 3. Hapus Item
 exports.removeItem = async (req, res) => {
   const userId = req.user.id;
   const { productId } = req.params;

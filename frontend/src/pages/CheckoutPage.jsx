@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
+const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7lACoB1-k3NZU'; 
+
 const loadMidtransScript = () => {
     return new Promise((resolve) => {
         if (window.snap) {
@@ -9,8 +11,8 @@ const loadMidtransScript = () => {
             return;
         }
         const script = document.createElement('script');
-        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'; // Sandbox URL
-        script.setAttribute('data-client-key', 'Mid-client-WAQ7lACoB1-k3NZU'); 
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', MIDTRANS_CLIENT_KEY); 
         script.onload = resolve;
         document.body.appendChild(script);
     });
@@ -26,7 +28,7 @@ function CheckoutPage() {
     const [address, setAddress] = useState('');
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const finalAmount = subtotal;
+    const finalAmount = subtotal; 
 
     useEffect(() => {
         const fetchCartAndScripts = async () => {
@@ -75,11 +77,11 @@ function CheckoutPage() {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            seller_id: 1,
+            seller_id: item.seller_id,
         }));
         
         try {
-            const response = await api.post('/checkout/', {
+            const response = await api.post('/checkout/', { 
                 shipping_address: fullAddressPayload,
                 total_amount: finalAmount,
                 payment_method: 'midtrans_snap',
@@ -119,6 +121,7 @@ function CheckoutPage() {
             
             <form onSubmit={handleCheckout} style={{display:'flex', gap:'30px'}}>
                 
+                {/* Kolom Kiri: Alamat & Item */}
                 <div style={{flex: 2}}>
                     
                     <h3>1. Alamat Pengiriman</h3>
@@ -167,6 +170,7 @@ function CheckoutPage() {
                     ))}
                 </div>
                 
+                {/* Kolom Kanan: Pembayaran */}
                 <div style={{flex: 1, backgroundColor:'#f9fafb', padding:'1.5rem', borderRadius:'8px', height: 'fit-content'}}>
                     <h3>3. Ringkasan Pembayaran</h3>
                     <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>

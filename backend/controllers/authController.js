@@ -1,6 +1,6 @@
 require('dotenv').config(); 
-const db = require('../config/db'); // "Colokan" database kita
-const bcrypt = require('bcryptjs'); // "Mesin Enkripsi" password
+const db = require('../config/db');
+const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -61,16 +61,16 @@ exports.login = async (req, res) => {
         id: user.id,
         email: user.email,
         username: user.username,
-        role: user.role // Penting untuk admin/reseller nanti
+        role: user.role
       }
     };
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Tiket berlaku 1 jam
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); 
 
     res.json({
       message: 'Login sukses!',
       token: token,
-      user: payload.user // Kita kirim data user juga
+      user: payload.user
     });
 
   } catch (error) {
