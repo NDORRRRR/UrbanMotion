@@ -10,8 +10,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--main-grey);
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 1rem;
+}
+
+.forum-header h1 {
+  color: var(--text-color);
 }
 
 .btn-create-thread {
@@ -25,8 +29,8 @@
 
 /* Kartu Thread (List) */
 .thread-card {
-  background: white;
-  border: 1px solid var(--main-grey);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -35,20 +39,27 @@
 }
 .thread-card:hover {
   border-color: var(--main-red);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-md);
+}
+
+.thread-card h3 {
+  color: var(--text-color);
+  margin: 0 0 10px 0;
 }
 
 .thread-meta {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 .thread-author {
-  color: var(--main-dark);
+  color: var(--text-color);
   font-weight: bold;
 }
 .thread-category {
-  background-color: #eee;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   padding: 2px 8px;
   border-radius: 4px;
   margin-left: 10px;
@@ -58,34 +69,41 @@
 
 /* Halaman Detail */
 .thread-detail {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 8px;
-  border: 1px solid var(--main-grey);
+  border: 1px solid var(--border-color);
   margin-bottom: 2rem;
+}
+.thread-detail h1 {
+  color: var(--text-color);
 }
 .thread-content {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-top: 1rem;
-  white-space: pre-wrap; /* Biar enter terbaca */
+  white-space: pre-wrap;
+  color: var(--text-color); /* Pastikan teks konten terbaca */
 }
 
 /* Bagian Komentar */
-.comments-section {
-  margin-top: 3rem;
+.comments-section h3, 
+.comments-section h4 {
+  color: var(--text-color);
 }
+
 .comment-card {
-  background: #f9fafb;
+  background: var(--bg-color);
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  border-left: 4px solid var(--main-grey);
+  border-left: 4px solid var(--border-color);
+  color: var(--text-color);
 }
 .reply-form textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid var(--main-grey);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   margin-bottom: 10px;
   resize: vertical;

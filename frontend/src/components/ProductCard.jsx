@@ -64,6 +64,8 @@ function ProductCard({ product }) {
       onMouseLeave={() => setIsHovered(false)} 
     >
       <div className="product-img-container">
+        {/* onClick={() => navigate(`/product/${product.id}`)}
+        style={{cursor: 'pointer'}} */}
         {images.length > 0 ? (
           <img 
             src={images[currentImageIndex]} 

@@ -1,8 +1,12 @@
 .navbar {
-  background-color: var(--main-white);
-  padding: 1rem 2rem;
-  border-bottom: 1px solid var(--main-grey);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: var(--card-bg); /* Ikut tema */
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 }
 
 .nav-container {
@@ -11,24 +15,28 @@
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .nav-logo {
   font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--main-red); /* Pakai warna tema kita! */
+  font-weight: 900;
+  color: var(--main-red);
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: -1px;
 }
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .nav-link {
   text-decoration: none;
-  color: var(--main-dark);
+  color: var(--text-color); /* Ikut tema */
   font-weight: 500;
+  transition: color 0.2s;
 }
 .nav-link:hover {
   color: var(--main-red);
@@ -37,36 +45,48 @@
 .nav-auth {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 10px;
 }
 
 .nav-user {
   font-size: 0.9rem;
-  font-weight: 500;
+  color: var(--text-color);
 }
 
-/* Tombol Login/Register di Navbar */
+.nav-theme-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  font-size: 1.2rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.nav-theme-btn:hover {
+  background-color: var(--bg-color);
+  transform: translateY(-1px);
+}
+
 .nav-link-btn {
-  background-color: var(--main-dark);
-  color: var(--main-white);
-  padding: 8px 14px;
-  border-radius: 6px;
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  padding: 8px 16px;
+  border-radius: 8px;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9rem;
+  transition: 0.2s;
 }
 .nav-link-btn:hover {
-  background-color: #333;
+  opacity: 0.9;
 }
 
-/* Tombol Logout di Navbar */
 .nav-logout-btn {
   background-color: var(--main-red);
-  color: var(--main-white);
-  padding: 8px 14px;
-  border-radius: 6px;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 0.9rem;
-  font-weight: 500;
 }
 .nav-logout-btn:hover {
   background-color: var(--main-red-dark);

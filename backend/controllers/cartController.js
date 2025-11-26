@@ -1,13 +1,11 @@
 const db = require('../config/db');
 
-// 1. Ambil Isi Keranjang User
 exports.getCart = async (req, res) => {
   const userId = req.user.id;
   try {
-    // KODE BARU: Tidak ada 'p.image_url', tapi pakai SUBSTRING_INDEX
     const query = `
       SELECT 
-        c.product_id, c.quantity, 
+        c.product_id, c.quantity, c.size,
         p.name, p.price, p.stock, 
         p.seller_id,  -- WAJIB ADA (Biar checkout tidak error 500)
         SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) AS image_url 
@@ -16,7 +14,7 @@ exports.getCart = async (req, res) => {
       LEFT JOIN product_images pi ON p.id = pi.product_id
       WHERE c.user_id = ?
       GROUP BY 
-        c.product_id, c.quantity, 
+        c.product_id, c.quantity, c.size,
         p.name, p.price, p.stock, 
         p.seller_id
     `;
@@ -28,46 +26,41 @@ exports.getCart = async (req, res) => {
   }
 };
 
-// 2. Tambah/Update Barang di Keranjang
 exports.updateCart = async (req, res) => {
   const userId = req.user.id;
-  const { productId, quantity } = req.body;
+  const { productId, quantity, size } = req.body; // <--- Tangkap 'size'
 
-  if (!productId || !quantity || quantity <= 0) {
-    return res.status(400).json({ message: 'Data produk/kuantitas tidak valid.' });
+  if (!productId || !quantity || !size) {
+    return res.status(400).json({ message: 'Pilih ukuran dulu, Bos!' });
   }
 
   try {
-    // A. Cek Stok
+    // Cek Stok
     const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [productId]);
-    if (productRows.length === 0) {
-      return res.status(404).json({ message: 'Produk tidak ditemukan.' });
-    }
+    if (productRows.length === 0) return res.status(404).json({ message: 'Produk hilang.' });
+    
     const availableStock = productRows[0].stock;
+    if (quantity > availableStock) return res.status(400).json({ message: 'Stok habis.' });
 
-    if (quantity > availableStock) {
-      return res.status(400).json({ message: `Stok hanya tersedia ${availableStock} unit.` });
-    }
-
-    // B. Update Database
+    // Cek apakah barang DENGAN UKURAN SAMA sudah ada?
     const [existing] = await db.query(
-      `SELECT * FROM carts WHERE user_id = ? AND product_id = ?`,
-      [userId, productId]
+      `SELECT * FROM carts WHERE user_id = ? AND product_id = ? AND size = ?`,
+      [userId, productId, size]
     );
 
     if (existing.length > 0) {
       await db.query(
-        `UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?`,
-        [quantity, userId, productId]
+        `UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ? AND size = ?`,
+        [quantity, userId, productId, size]
       );
     } else {
       await db.query(
-        `INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?, ?)`,
-        [userId, productId, quantity]
+        `INSERT INTO carts (user_id, product_id, quantity, size) VALUES (?, ?, ?, ?)`,
+        [userId, productId, quantity, size]
       );
     }
 
-    res.json({ message: 'Keranjang berhasil diupdate.' });
+    res.json({ message: 'Masuk keranjang!' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Gagal update keranjang.' });
@@ -78,15 +71,17 @@ exports.updateCart = async (req, res) => {
 exports.removeItem = async (req, res) => {
   const userId = req.user.id;
   const { productId } = req.params;
+  const { size } = req.body;
+  const sizeToDelete = req.query.size; 
 
   try {
     await db.query(
-      `DELETE FROM carts WHERE user_id = ? AND product_id = ?`,
-      [userId, productId]
+      `DELETE FROM carts WHERE user_id = ? AND product_id = ? AND size = ?`,
+      [userId, productId, sizeToDelete]
     );
-    res.json({ message: 'Item berhasil dihapus.' });
+    res.json({ message: 'Item dihapus.' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Gagal menghapus item.' });
+    res.status(500).json({ message: 'Gagal hapus item.' });
   }
 };

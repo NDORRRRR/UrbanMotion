@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
@@ -15,34 +15,43 @@ import CreateThreadPage from './pages/CreateThreadPage';
 import ThreadDetailPage from './pages/ThreadDetailPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import ProfilePage from './pages/ProfilePage';
+import OrderHistoryPage from './pages/OrderHistoryPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 
 function App() {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+      
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
 
       <div style={{ flex: 1 }}>
         <Routes>
-          {/* --- Rute Umum --- */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          
-          {/* --- Rute Legit Check --- */}
           <Route path="/legit-check" element={<LegitCheckPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          
-          {/* --- Rute E-Commerce (Jualan) --- */}
           <Route path="/sell" element={<AddProductPage />} />
-          
-          {/* --- Rute Forum --- */}
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/create" element={<CreateThreadPage />} />
           <Route path="/forum/:id" element={<ThreadDetailPage />} />
-
-          {/* --- Rute Cart --- */}
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/orders" element={<OrderHistoryPage />} />
+          <Route path="/product/:id" element={<ProductDetailPage />} />
         </Routes>
       </div>
 

@@ -3,28 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
-function Navbar() {
+function Navbar({ theme, toggleTheme }) {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login'); // Lempar ke login setelah logout
+    navigate('/login');
   };
 
   return (
     <nav className="navbar">
       <div className="nav-container">
-        {/* Logo/Nama Web */}
-        <Link to="/" className="nav-logo">
-          Urban Motion
-        </Link>
+        <Link to="/" className="nav-logo">Urban Motion</Link>
 
-        {/* Link Halaman Kiri */}
         <div className="nav-links">
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/legit-check" className="nav-link">Legit Check</Link>
-          <Link to="/history" className="nav-link">Riwayat</Link>
+          <Link to="/history" className="nav-link">Riwayat LC</Link>
 
           {user && (user.role === 'admin' || user.role === 'reseller') && (
             <Link to="/sell" className='nav-link' style={{ color: 'var(--main-red)', fontWeight: 'bold' }}>
@@ -35,24 +31,26 @@ function Navbar() {
         </div>
 
         <div className="nav-auth">
+          {/* ⬇️ TOMBOL DARK MODE ⬇️ */}
+          <button onClick={toggleTheme} className="nav-theme-btn" title="Ganti Tema">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+
           {token ? (
-            // JIKA SUDAH LOGIN
             <>
-            <Link to="/cart" className="nav-link" style={{marginRight: '10px'}}>
-                🛒 Keranjang
-            </Link>
-              <span className="nav-user">
+              <Link to="/cart" className="nav-link" style={{marginRight: '15px', fontSize: '1.2rem'}} title="Keranjang">
+                  🛒
+              </Link>
+              <Link to="/orders" className="nav-link" style={{marginRight: '15px'}} title="Pesanan">
+                 📦 Order
+              </Link>
+              <Link to="/profile" className="nav-user" style={{textDecoration: 'none', marginRight: '15px', fontWeight: 'bold'}}>
                 Halo, {user ? user.username : 'User'}
-              </span>
-              <button onClick={handleLogout} className="nav-logout-btn">
-                Logout
-              </button>
+              </Link>
+              <button onClick={handleLogout} className="nav-logout-btn">Logout</button>
             </>
           ) : (
-            // JIKA BELUM LOGIN
-            <Link to="/login" className="nav-link-btn">
-              Login/Register
-            </Link>
+            <Link to="/login" className="nav-link-btn">Login</Link>
           )}
         </div>
       </div>

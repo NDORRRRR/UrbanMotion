@@ -9,6 +9,8 @@ const productRoutes = require('./routes/productRoutes');
 const forumRoutes = require('./routes/forumRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
+const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require('./routes/orderRoutes.js');
 
 const app = express();
 const PORT = 3001;
@@ -18,7 +20,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.get('/', (req, res) => {
-    res.send('<h1>BAckend sampun aktif</h1>');
+    res.send('<h1>Backend sampun aktif</h1>');
 });
 
 app.use('/api/auth', authRoutes);
@@ -28,6 +30,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server backend wonten ten http://localhost:${PORT}`);

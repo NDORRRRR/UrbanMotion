@@ -13,7 +13,7 @@ const verifySeller = (req, res, next) => {
 };
 
 router.get('/', productController.getAllProducts);
-
+router.get('/:id', productController.getProductById);
 router.post('/', auth, verifySeller, upload.array('images', 6), productController.createProduct);
 
 module.exports = router;

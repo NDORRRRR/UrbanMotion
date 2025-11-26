@@ -2,8 +2,8 @@
   max-width: 800px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: white;
-  border: 1px solid var(--main-grey);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
@@ -22,30 +22,35 @@
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: var(--text-color);
 }
 
 .lc-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid var(--main-grey);
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-color);
   border-radius: 6px;
   box-sizing: border-box;
 }
 
 /* Upload File */
 .upload-area {
-  border: 2px dashed var(--main-grey);
+  border: 2px dashed var(--border-color);
   padding: 2rem;
   text-align: center;
   border-radius: 8px;
   cursor: pointer;
   transition: 0.3s;
-  background-color: #fafafa;
+  background-color: var(--bg-color); 
+  color: var(--text-muted);
 }
 
 .upload-area:hover {
   border-color: var(--main-red);
-  background-color: #fff5f5;
+  /* background-color: #fff5f5; */
+  filter: brightness(0.95);
 }
 
 /* Preview Gambar */
@@ -62,7 +67,7 @@
   height: 100px;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
 }
 
 .preview-item img {
@@ -82,8 +87,10 @@
 .alert-success {
   background-color: #d1fae5;
   color: #065f46;
+  border: 1px solid #10b981;
 }
 .alert-error {
   background-color: #fee2e2;
   color: #991b1b;
+  border: 1px solid var(--main-red);
 }

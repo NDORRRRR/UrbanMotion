@@ -11,6 +11,7 @@ function AddProductPage() {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState([]);
+  const [sizes, setSizes] = useState('');
 
   const handleImageChange = (e) => {
     if (e.target.files) {
@@ -27,6 +28,7 @@ function AddProductPage() {
     formData.append('brand', brand);
     formData.append('price', price);
     formData.append('description', description);
+    formData.append('sizes', sizes);
     
     image.forEach((file) => {
         formData.append('images', file);
@@ -80,7 +82,17 @@ function AddProductPage() {
                 style={{ width: '95%', padding: '8px' }}
             />
           </div>
+          <div className="form-group">
+            <label>Pilihan Ukuran (Pisahkan dengan koma)</label>
+            <input 
+              type="text" 
+              value={sizes} 
+              onChange={e => setSizes(e.target.value)} 
+              required 
+              placeholder="Contoh: 39, 40, 41, 42, 43" 
+            />
         </div>
+      </div>
 
         <div className="form-group">
           <label>Deskripsi & Kondisi</label>

@@ -1,75 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
 :root {
-  --main-red: #B91C1C;      /* Merah Marun (Kalem) */
-  --main-red-dark: #991B1B; /* Merah lebih tua (untuk hover) */
-  --main-dark: #111827;     /* Hitam (untuk teks, tombol) */
-  --main-light: #f9fafb;    /* Abu-abu sangat muda (background) */
-  --main-grey: #e5e7eb;    /* Abu-abu (untuk border) */
-  --main-white: #ffffff;
+  /* --- Default Light Mode (Siang) --- */
+  --main-red: #B91C1C;
+  --main-red-dark: #991B1B;
+  
+  --bg-color: #F9FAFB;       /* Background Halaman */
+  --card-bg: #ffffff;        /* Background Kotak */
+  --text-color: #111827;     /* Teks Utama (Hitam) */
+  --text-muted: #6B7280;     /* Teks Pudar */
+  --border-color: #E5E7EB;   /* Garis Pinggir */
+  --input-bg: #ffffff;       /* Background Input */
+  --input-text: #111827;     /* Teks Input */
+  --placeholder: #9CA3AF;    /* Warna Placeholder */
+  
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Dark Mode (Malam) --- */
+[data-theme='dark'] {
+  --main-red: #EF4444;
+  --main-red-dark: #B91C1C;
+  
+  --bg-color: #111827;        /* Hitam Pekat */
+  --card-bg: #1F2937;         /* Abu Gelap */
+  --text-color: #F3F4F6;      /* Putih */
+  --text-muted: #9CA3AF;      /* Abu Terang */
+  --border-color: #374151;    /* Border Gelap */
+  --input-bg: #374151;        /* Input Gelap */
+  --input-text: #F3F4F6;      /* Teks Input Putih */
+  --placeholder: #6B7280;     /* Placeholder Abu Sedang */
+  
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: var(--main-light);
-  color: var(--main-dark);
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* --- TOMBOL GLOBAL --- */
 button {
   cursor: pointer;
   border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
+  border-radius: 8px;
+  padding: 12px 24px;
   font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
   background-color: var(--main-red);
-  color: var(--main-white);
+  color: #ffffff;
 }
 .btn-primary:hover {
   background-color: var(--main-red-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .btn-dark {
-  background-color: var(--main-dark);
-  color: var(--main-white);
+  background-color: var(--text-color);
+  color: var(--bg-color);
 }
 .btn-dark:hover {
-  background-color: #333;
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
+/* --- FORM CONTAINER --- */
 .form-container {
   max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border: 1px solid var(--main-grey);
-  border-radius: 8px;
-  background-color: var(--main-white);
+  margin: 4rem auto;
+  padding: 2.5rem;
+  border-radius: 16px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
 }
-.form-container input[type='email'],
-.form-container input[type='password'] {
-  width: 95%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid var(--main-grey);
-  border-radius: 6px;
-}
-.form-group {
-  margin-bottom: 1rem;
-}
-.form-error {
-  color: var(--main-red);
-  font-size: 0.9rem;
-}
-.form-switch {
-  margin-top: 1rem;
+
+.form-container h2 {
   text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
   font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+/* --- FIX INPUT & PLACEHOLDER (INI KUNCINYA) --- */
+
+/* 1. Style Input Umum */
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--input-bg); 
+  color: var(--input-text) !important; /* Paksa warna teks */
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.3s, color 0.3s;
+}
+
+/* 2. Warna Placeholder (Teks petunjuk di dalam input) */
+::placeholder {
+  color: var(--placeholder) !important;
+  opacity: 1; /* Firefox */
+}
+
+/* 3. Efek Fokus */
+input:focus, textarea:focus {
+  border-color: var(--main-red);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+/* 4. FIX AUTOFILL (Saat browser isi otomatis password/email) */
+/* Ini mencegah browser menimpa warna gelap kita dengan warna putih */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--input-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* --- Link & Error --- */
+.form-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 .form-switch-link {
   color: var(--main-red);
+  font-weight: 600;
   cursor: pointer;
   margin-left: 5px;
-  font-weight: 600;
+}
+.form-switch-link:hover {
+  text-decoration: underline;
+}
+
+.form-error {
+  color: #EF4444;
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }

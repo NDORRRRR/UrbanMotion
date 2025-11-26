@@ -45,13 +45,12 @@ function CartPage() {
   }, [token, navigate]);
 
   // Logic Hapus Item
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (productId, size) => {
     if (!window.confirm('Yakin ingin menghapus item ini dari keranjang?')) return;
     try {
       // Panggil API DELETE
-      await api.delete(`/cart/${productId}`);
-      // Update tampilan secara instan (tanpa refresh penuh)
-      setCartItems(cartItems.filter(item => item.product_id !== productId));
+      await api.delete(`/cart/${productId}?size=${size}`);
+      setCartItems(cartItems.filter(item => !(item.product_id === productId && item.size === size)));
     } catch (error) {
       alert('Gagal menghapus item.');
     }
@@ -86,40 +85,46 @@ function CartPage() {
 
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
-      <h1 style={{ color: 'var(--main-dark)', marginBottom: '1.5rem' }}>Keranjang Belanja Anda</h1>
+      <h1 style={{ color: 'var(--text-color)', marginBottom: '1.5rem' }}>Keranjang Belanja Anda</h1>
 
       {cartItems.length === 0 ? (
-        <p>Keranjang masih kosong. Yuk, cari sepatu!</p>
+        <p style={{color: 'var(--text-muted)'}}>Keranjang masih kosong. Yuk, cari sepatu!</p>
       ) : (
-        <div style={{ display: 'flex', gap: '20px' }}>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
           
           {/* KOLOM KIRI: LIST BARANG */}
-          <div style={{ flex: 3 }}>
+          <div style={{ flex: 3, minWidth: '300px' }}>
             {cartItems.map(item => (
-              <div key={item.product_id} style={{ display: 'flex', border: '1px solid var(--main-grey)', padding: '1rem', marginBottom: '10px', backgroundColor: 'white', borderRadius: '6px', alignItems: 'center' }}>
+              <div key={item.product_id} style={{ 
+                  display: 'flex', 
+                  border: '1px solid var(--border-color)', // FIX
+                  padding: '1rem', marginBottom: '10px', 
+                  backgroundColor: 'var(--card-bg)', // FIX
+                  borderRadius: '6px', alignItems: 'center',
+                  color: 'var(--text-color)' // FIX
+                }}>
                 
-                {/* Gambar & Nama */}
                 <img src={item.image_url} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', marginRight: '1rem' }} />
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: 0, fontSize: '1rem' }}>{item.name}</h3>
-                  <p style={{ margin: '5px 0', fontWeight: 'bold' }}>{formatRp(item.price)}</p>
+                  <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-color)' }}>{item.name}</h3>
+                  <p style={{ margin: '0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Ukuran: <strong>{item.size}</strong></p>
+                  <p style={{ margin: '5px 0', fontWeight: 'bold', color: 'var(--main-red)' }}>{formatRp(item.price)}</p>
                 </div>
 
                 {/* Kuantitas */}
                 <div style={{ width: '120px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <button onClick={() => handleQuantityChange(item.product_id, item.quantity - 1)} className="btn-dark" style={{ padding: '5px' }}>-</button>
-                  <span style={{ margin: '0 10px' }}>{item.quantity}</span>
+                  <span style={{ margin: '0 10px', color: 'var(--text-color)' }}>{item.quantity}</span>
                   <button onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)} className="btn-dark" style={{ padding: '5px' }} disabled={item.quantity >= item.stock}>+</button>
                 </div>
 
                 {/* Subtotal Item */}
-                <div style={{ width: '120px', textAlign: 'right', fontWeight: 'bold' }}>
+                <div style={{ width: '120px', textAlign: 'right', fontWeight: 'bold', color: 'var(--text-color)' }}>
                   {formatRp(item.price * item.quantity)}
                 </div>
 
-                {/* Hapus */}
-                <button onClick={() => handleRemoveItem(item.product_id)} style={{ marginLeft: '1rem', background: 'none', color: 'var(--main-red)' }}>
-                  ❌
+                <button onClick={() => handleRemoveItem(item.product_id)} style={{ marginLeft: '1rem', background: 'none', color: 'var(--main-red)', fontSize:'1.2rem' }}>
+                  ✕
                 </button>
               </div>
             ))}
