@@ -66,8 +66,8 @@ exports.createProduct = async (req, res) => {
   try {
     const [result] = await db.query(
       `INSERT INTO products (seller_id, name, brand, price, description, stock, sizes) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [sellerId, name, brand, price, description, stock || 1]
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [sellerId, name, brand, price, description, stock || 1, sizes]
     );
     const productId = result.insertId;
 

@@ -1,20 +1,21 @@
 const multer = require('multer');
 const path = require('path');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Simpan di folder 'uploads' yang tadi kita buat
-    cb(null, 'public/uploads'); 
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, prefixName + '-' + Date.now() + path.extname(file.originalname));
-  }
-});
+const createStorage = (prefixName) => {
+  return multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads'); // Pastikan folder 'uploads' ada di root backend
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, prefixName + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+};
 
+// Filter hanya terima gambar
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;
-  // Cek ekstensi dan tipe file
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
@@ -25,15 +26,28 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Bikin 3 uploader berbeda
 const uploadProduct = multer({ 
   storage: createStorage('product'),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Maksimal 5MB per file
+  limits: { fileSize: 5 * 1024 * 1024 }, // Max 5MB
   fileFilter: fileFilter
 });
 
 const uploadLegit = multer({ 
   storage: createStorage('legit'),
-  limits: { fileSize: 5 * 1024 * 1024 } 
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: fileFilter
 });
 
-module.exports = upload;
+const uploadForum = multer({ 
+  storage: createStorage('forum'),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: fileFilter
+});
+
+// Export semua uploader
+module.exports = {
+  uploadProduct,
+  uploadLegit,
+  uploadForum
+};

@@ -72,7 +72,7 @@ exports.removeItem = async (req, res) => {
   const userId = req.user.id;
   const { productId } = req.params;
   const { size } = req.body;
-  const sizeToDelete = req.query.size; 
+  //const sizeToDelete = req.query.size; 
 
   try {
     await db.query(

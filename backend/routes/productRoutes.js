@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const auth = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware'); 
+const { uploadProduct } = require('../middleware/uploadMiddleware');
 
 const verifySeller = (req, res, next) => {
   if (req.user && (req.user.role === 'reseller' || req.user.role === 'admin')) {
@@ -14,6 +14,6 @@ const verifySeller = (req, res, next) => {
 
 router.get('/', productController.getAllProducts);
 router.get('/:id', productController.getProductById);
-router.post('/', auth, verifySeller, upload.array('images', 6), productController.createProduct);
+router.post('/', auth, verifySeller, uploadProduct.array('images', 6), productController.createProduct);
 
 module.exports = router;
