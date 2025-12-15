@@ -4,11 +4,11 @@ const path = require('path');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Simpan di folder 'uploads' yang tadi kita buat
-    cb(null, 'uploads/'); 
+    cb(null, 'public/uploads'); 
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'legit-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, prefixName + '-' + Date.now() + path.extname(file.originalname));
   }
 });
 
@@ -25,10 +25,15 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
-  storage: storage,
+const uploadProduct = multer({ 
+  storage: createStorage('product'),
   limits: { fileSize: 5 * 1024 * 1024 }, // Maksimal 5MB per file
   fileFilter: fileFilter
+});
+
+const uploadLegit = multer({ 
+  storage: createStorage('legit'),
+  limits: { fileSize: 5 * 1024 * 1024 } 
 });
 
 module.exports = upload;
