@@ -15,7 +15,7 @@ function Navbar({ theme, toggleTheme }) {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <Link to="/" className="nav-logo">Urban Motion</Link>
+        <Link to="/" className="nav-logo">LOGO COK</Link>
 
         <div className="nav-links">
           <Link to="/" className="nav-link">Home</Link>

@@ -1,43 +1,55 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               8.4.3 - MySQL Community Server - GPL
--- Server OS:                    Win64
--- HeidiSQL Version:             12.8.0.6908
--- --------------------------------------------------------
+-- 1. Tabel Keranjang Belanja (Tempat user simpan barang sebelum checkout)
+CREATE TABLE carts (
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  PRIMARY KEY (user_id, product_id), 
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- 2. Tabel Pesanan Utama (Data order, total harga, status)
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  total_amount DECIMAL(15, 2) NOT NULL,
+  shipping_address TEXT,
+  payment_method VARCHAR(50),
+  payment_status ENUM('pending', 'paid', 'failed') NOT NULL DEFAULT 'pending',
+  order_status ENUM('new', 'processing', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'new',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
 
--- Data exporting was unselected.
+-- 3. Tabel Detail Pesanan (Barang apa saja yang dibeli)
+CREATE TABLE order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  product_id INT NOT NULL,
+  seller_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price_at_purchase DECIMAL(15, 2) NOT NULL,
+  
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
+  FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE RESTRICT
+);
 
--- Data exporting was unselected.
+ALTER TABLE products ADD COLUMN sizes VARCHAR(255) NOT NULL DEFAULT '';
 
--- Data exporting was unselected.
+DROP TABLE IF EXISTS carts;
+CREATE TABLE carts (
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  size VARCHAR(50) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, product_id, size),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
 
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
--- Data exporting was unselected.
-
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+ALTER TABLE order_items ADD COLUMN size VARCHAR(50) NOT NULL DEFAULT '';

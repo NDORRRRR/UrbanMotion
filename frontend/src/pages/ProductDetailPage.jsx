@@ -1,10 +1,9 @@
-// src/pages/ProductDetailPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import toast, { Toaster } from 'react-hot-toast'; // ✅ Pakai Toast
-import ProductCard from '../components/ProductCard'; // ✅ Import Card
+import toast, { Toaster } from 'react-hot-toast';
+import ProductCard from '../components/ProductCard';
 import './ProductDetail.css';
 
 function ProductDetailPage() {
@@ -13,62 +12,88 @@ function ProductDetailPage() {
   const { token } = useAuth();
   
   const [product, setProduct] = useState(null);
-  const [relatedProducts, setRelatedProducts] = useState([]); // ✅ State Rekomendasi
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const [activeImage, setActiveImage] = useState('');
   
+  // State Pilihan User
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [sizeList, setSizeList] = useState([]);
 
   const formatRp = (price) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
-  // 1. Fetch Detail & Rekomendasi
   useEffect(() => {
     const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Ambil Detail
-            const res = await api.get(`/products/${id}`);
-            setProduct(res.data);
-            
-            if(res.data.images && res.data.images.length > 0) setActiveImage(res.data.images[0]);
-            else setActiveImage(res.data.image_url);
-            
-            if (res.data.sizes) setSizeList(res.data.sizes.split(',').map(s => s.trim()));
+      setLoading(true);
+      try {
+        const res = await api.get(`/products/${id}`);
+        const data = res.data;
+        setProduct(data);
 
-            // ✅ Ambil Produk Rekomendasi (Brand sama, kecuali produk ini)
-            const relatedRes = await api.get('/products', { params: { brand: res.data.brand } });
-            // Filter biar produk yg sedang dibuka ga muncul di rekomendasi & ambil 4 aja
-            const filtered = relatedRes.data
-                .filter(p => p.id !== parseInt(id))
-                .slice(0, 4);
-            setRelatedProducts(filtered);
-
-        } catch (err) {
-            console.error(err);
-            toast.error("Gagal memuat produk");
-        } finally {
-            setLoading(false);
+        if(data.images && data.images.length > 0) setActiveImage(data.images[0]);
+        else setActiveImage(data.image_url);
+        
+        // Parse Size
+        if (data.sizes) {
+          setSizeList(data.sizes.split(',').map(s => s.trim()));
+        } else {
+          setSizeList(['38', '39', '40', '41', '42', '43', '44']); // Default
         }
+
+        // Rekomendasi
+        const relatedRes = await api.get('/products', { params: { brand: data.brand } });
+        setRelatedProducts(relatedRes.data.filter(p => p.id !== parseInt(id)).slice(0, 4));
+
+      } catch (err) {
+        console.error(err);
+        toast.error("Gagal memuat produk.");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
-    window.scrollTo(0, 0); // Scroll ke atas pas ganti halaman
+    window.scrollTo(0, 0);
   }, [id]);
+
+  // 🔥 UPDATE LOGIKA: Tambah Kurang Quantity
+  const handleQtyChange = (val) => {
+    // 1. Pastikan stok dibaca sebagai ANGKA (Integer)
+    const stockAvailable = parseInt(product.stock) || 0; 
+
+    // 2. Hitung calon jumlah baru
+    let newQty = quantity + val;
+
+    // 3. Batasan Minimal 1
+    if (newQty < 1) {
+        newQty = 1; 
+        toast('Minimal beli 1 pasang ya Bos', { icon: '😅' });
+    }
+
+    // 4. Batasan Maksimal Stok
+    if (newQty > stockAvailable) {
+        newQty = stockAvailable;
+        toast.error(`Waduh, stok cuma sisa ${stockAvailable} pasang!`);
+    }
+
+    // 5. Update State
+    setQuantity(newQty);
+  };
 
   const handleTransaction = async (isDirectBuy) => {
     if (!token) {
-      toast.error('Silakan Login dahulu!');
+      toast.error('Login dulu, Bos!');
       navigate('/login');
       return;
     }
     
     if (!selectedSize) {
-      toast.error('Pilih ukuran sepatu dulu!'); // ✅ Toast Error
+      toast.error('⚠️ Pilih ukuran sepatu dulu!');
       return;
     }
 
-    const toastId = toast.loading('Memproses...'); // Loading state
+    const toastId = toast.loading('Sedang memproses...');
 
     try {
       await api.post('/cart', { 
@@ -81,94 +106,120 @@ function ProductDetailPage() {
         toast.dismiss(toastId);
         navigate('/cart'); 
       } else {
-        toast.success('Berhasil masuk keranjang!', { id: toastId }); // ✅ Toast Sukses
+        toast.success(`Size ${selectedSize} (x${quantity}) masuk keranjang!`, { id: toastId });
       }
     } catch (error) {
-      toast.error('Gagal menambahkan produk.', { id: toastId });
+      toast.error('Gagal memproses transaksi.', { id: toastId });
     }
   };
 
-  const handleQtyChange = (val) => {
-    const newQty = quantity + val;
-    if (newQty >= 1 && newQty <= (product.stock || 1)) setQuantity(newQty);
-  };
-
-  if (loading) return <div className="detail-page-wrapper" style={{display:'flex',justifyContent:'center',alignItems:'center',height:'80vh'}}>Loading...</div>;
-  if (!product) return <div className="detail-page-wrapper">Produk tidak ditemukan</div>;
+  if (loading) return <div className="detail-loading">Loading...</div>;
+  if (!product) return <div className="detail-loading">Produk tidak ditemukan.</div>;
 
   return (
     <div className="detail-page-wrapper">
-      <Toaster /> {/* Wadah Notifikasi */}
+      <Toaster position="top-center" />
       
-      {/* Bagian Detail (Kode Lama Bos Tetap Aman Disini) */}
       <div className="detail-container">
-         {/* ... (COPY ISI DETAIL CONTAINER DARI KODE SEBELUMNYA DI SINI) ... */}
-         {/* Bagian Kiri (Gambar) & Kanan (Info) biarkan sama seperti sebelumnya */}
-         <div className="gallery-container">
-            <img src={activeImage} alt={product.name} className="main-image" />
-            <div className="thumb-grid">
-                {product.images && product.images.map((img, idx) => (
-                <img key={idx} src={img} className={`thumb-img ${activeImage === img ? 'active' : ''}`} onMouseEnter={() => setActiveImage(img)} onClick={() => setActiveImage(img)} />
-                ))}
-            </div>
-         </div>
+        
+        {/* KIRI: FOTO */}
+        <div className="gallery-container">
+          <div className="main-image-wrapper">
+             <img src={activeImage} alt={product.name} className="main-image" />
+          </div>
+          <div className="thumb-grid">
+            {product.images && product.images.map((img, idx) => (
+              <img 
+                key={idx} 
+                src={img} 
+                className={`thumb-img ${activeImage === img ? 'active' : ''}`}
+                onMouseEnter={() => setActiveImage(img)}
+                onClick={() => setActiveImage(img)}
+              />
+            ))}
+          </div>
+        </div>
 
-         <div className="product-info-section">
-            <h1 className="product-title">{product.name}</h1>
-            <div className="product-meta">
-                <span className="rating-stars">⭐⭐⭐⭐⭐ 5.0</span>
-                <span>{product.brand}</span>
-            </div>
-            <div className="price-area">
-                <span className="price-text">{formatRp(product.price)}</span>
-            </div>
+        {/* KANAN: INFO */}
+        <div className="product-info-section">
+          <h1 className="product-title">{product.name}</h1>
+          <div className="product-meta">
+            <span>{product.brand}</span>
+            <span className="separator">|</span>
+            <span>Stok: <strong>{product.stock}</strong></span>
+          </div>
 
-            <div className="variant-row">
-                <span className="variant-label">Pilih Ukuran</span>
-                <div className="size-grid">
-                {sizeList.map((size) => (
-                    <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>{size}</button>
-                ))}
-                </div>
-            </div>
+          <div className="price-area">
+            <span className="price-text">{formatRp(product.price)}</span>
+          </div>
 
-            <div className="variant-row">
-                <span className="variant-label">Jumlah</span>
-                <div className="qty-selector">
-                    <button className="qty-btn" onClick={() => handleQtyChange(-1)}>-</button>
-                    <input type="text" className="qty-input" value={quantity} readOnly />
-                    <button className="qty-btn" onClick={() => handleQtyChange(1)}>+</button>
-                </div>
-                <span className="stock-info">Stok: {product.stock}</span>
+          <div className="variant-row">
+            <span className="variant-label">Pilih Ukuran</span>
+            <div className="size-grid">
+              {sizeList.map((size) => (
+                <button
+                  key={size}
+                  className={`size-btn ${selectedSize === size ? 'active' : ''}`}
+                  onClick={() => setSelectedSize(size)}
+                >
+                  {size}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="action-buttons">
-                <button className="btn-add-cart" onClick={() => handleTransaction(false)} disabled={product.stock === 0}>Masukkan Keranjang</button>
-                <button className="btn-buy-now" onClick={() => handleTransaction(true)} disabled={product.stock === 0}>Beli Sekarang</button>
+          <div className="variant-row">
+            <span className="variant-label">Jumlah</span>
+            <div className="qty-selector">
+                {/* 🔥 Tombol MINUS */}
+                <button 
+                    className="qty-btn" 
+                    type="button" // PENTING: biar gak refresh halaman
+                    onClick={() => handleQtyChange(-1)}
+                >-</button>
+                
+                {/* Input Angka (Read Only biar gak ribet ngetik) */}
+                <input 
+                    type="text" 
+                    className="qty-input" 
+                    value={quantity} 
+                    readOnly 
+                />
+                
+                {/* 🔥 Tombol PLUS */}
+                <button 
+                    className="qty-btn" 
+                    type="button" 
+                    onClick={() => handleQtyChange(1)}
+                >+</button>
             </div>
-         </div>
+          </div>
+
+          <div className="action-buttons">
+            <button className="btn-add-cart" onClick={() => handleTransaction(false)} disabled={product.stock === 0}>
+                + Keranjang
+            </button>
+            <button className="btn-buy-now" onClick={() => handleTransaction(true)} disabled={product.stock === 0}>
+                Beli Sekarang
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* ✅ 4. FITUR BARU: PRODUK REKOMENDASI */}
-      <div className="detail-container" style={{marginTop:'40px', display:'block'}}>
-         <h3 className="section-header" style={{background:'transparent', paddingLeft:0}}>Mungkin Kamu Suka</h3>
-         {relatedProducts.length > 0 ? (
-            <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:'20px'}}>
-                {relatedProducts.map(p => (
-                    <ProductCard key={p.id} product={p} />
-                ))}
-            </div>
-         ) : (
-             <p style={{color:'var(--text-muted)'}}>Tidak ada produk serupa.</p>
-         )}
+      <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
+         <h3 className="section-header">Deskripsi</h3>
+         <p className="product-desc-text">{product.description}</p>
       </div>
-
-      {/* Deskripsi (Pindah ke bawah rekomendasi atau biarkan di atas terserah) */}
-      <div className="detail-container" style={{marginTop: '20px', display: 'block'}}>
-         <div className="section-header">Deskripsi Produk</div>
-         <p style={{padding: '0 15px', whiteSpace: 'pre-line', lineHeight: '1.6', color: 'var(--text-color)'}}>{product.description}</p>
-      </div>
-
+      
+      {/* RELATED PRODUCTS */}
+      {relatedProducts.length > 0 && (
+          <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
+             <h3 className="section-header">Produk Serupa</h3>
+             <div className="related-grid">
+                 {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
+             </div>
+          </div>
+      )}
     </div>
   );
 }

@@ -1,127 +1,104 @@
+/* src/pages/ProductDetail.css */
+
 .detail-page-wrapper {
   background-color: var(--bg-color);
   padding: 20px 0;
-  min-height: 80vh;
+  min-height: 100vh;
 }
 
 .detail-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 25px;
   background-color: var(--card-bg);
-  border-radius: 4px;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
   display: grid;
-  grid-template-columns: 450px 1fr;
+  grid-template-columns: 40% 1fr;
   gap: 40px;
+  margin-bottom: 20px;
 }
 
-.gallery-container {
-  display: flex;
-  flex-direction: column;
-}
-
+/* --- GAMBAR --- */
 .main-image {
   width: 100%;
-  height: 450px;
+  height: 400px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid var(--border-color);
-  margin-bottom: 10px;
-  cursor: pointer;
 }
-
 .thumb-grid {
   display: flex;
   gap: 10px;
+  margin-top: 10px;
   overflow-x: auto;
-  padding-bottom: 5px;
 }
-
 .thumb-img {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: 4px;
   cursor: pointer;
   border: 2px solid transparent;
-  opacity: 0.6;
-  transition: all 0.2s;
+  opacity: 0.7;
 }
-
 .thumb-img:hover, .thumb-img.active {
   border-color: var(--main-red);
   opacity: 1;
 }
 
+/* --- INFO --- */
 .product-title {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin: 0 0 10px 0;
+  font-size: 1.6rem;
+  margin-top: 0;
   color: var(--text-color);
-  line-height: 1.2;
-}
-
-.product-meta {
-  display: flex;
-  gap: 20px;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 15px;
-}
-
-.rating-stars {
-  color: #fbbf24; 
 }
 
 .price-area {
-  background-color: #fafafa;
-  padding: 15px 20px;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
+  background-color: rgba(0,0,0,0.03);
+  padding: 15px;
   border-radius: 4px;
+  margin: 20px 0;
 }
-
-[data-theme='dark'] .price-area {
-  background-color: #374151; 
-}
+[data-theme='dark'] .price-area { background-color: rgba(255,255,255,0.05); }
 
 .price-text {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.8rem;
   color: var(--main-red);
+  font-weight: 700;
 }
 
 .variant-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 25px;
 }
 
 .variant-label {
-  width: 110px;
+  width: 100px;
   color: var(--text-muted);
   font-size: 0.95rem;
+  padding-top: 8px;
 }
 
-/* Tombol Size */
 .size-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  flex: 1;
 }
 
+/* Tombol Size */
 .size-btn {
-  background: var(--card-bg);
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  padding: 8px 25px;
+  min-width: 50px;
+  height: 40px;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.2s;
-  min-width: 80px;
-  text-align: center;
+  font-weight: 500;
+  transition: 0.2s;
 }
 
 .size-btn:hover {
@@ -131,44 +108,53 @@
 
 .size-btn.active {
   border-color: var(--main-red);
-  color: var(--main-red);
-  font-weight: bold;
+  background-color: var(--main-red);
+  color: white; /* Teks putih saat aktif */
 }
 
+/* Selector Qty */
 .qty-selector {
   display: flex;
-  align-items: center;
   border: 1px solid var(--border-color);
   border-radius: 4px;
+  height: 35px;
 }
 
 .qty-btn {
-  background: transparent;
+  width: 35px;
+  background: var(--bg-color);
   border: none;
-  padding: 5px 15px;
+  cursor: pointer;
   font-size: 1.2rem;
   color: var(--text-color);
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  background-color: rgba(0,0,0,0.05);
 }
 
 .qty-input {
   width: 50px;
   text-align: center;
+  border: none;
   border-left: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
-  border-top: none;
-  border-bottom: none;
-  font-weight: bold;
   background: transparent;
   color: var(--text-color);
+  font-weight: bold;
 }
 
 .stock-info {
   margin-left: 15px;
-  font-size: 0.9rem;
+  align-self: center;
   color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
+/* --- TOMBOL --- */
 .action-buttons {
   display: flex;
   gap: 15px;
@@ -177,73 +163,56 @@
 
 .btn-add-cart {
   flex: 1;
-  background-color: rgba(185, 28, 28, 0.1);
+  padding: 15px;
+  background: rgba(220, 38, 38, 0.1);
   color: var(--main-red);
   border: 1px solid var(--main-red);
-  padding: 15px;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.btn-add-cart:hover {
-  background-color: rgba(185, 28, 28, 0.2);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 .btn-buy-now {
   flex: 1;
-  background-color: var(--main-red);
+  padding: 15px;
+  background: var(--main-red);
   color: white;
   border: none;
-  padding: 15px;
-  font-size: 1rem;
-}
-
-.btn-buy-now:hover {
-  background-color: var(--main-red-dark);
-}
-
-.product-description-box {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: var(--card-bg);
+  font-weight: 600;
+  cursor: pointer;
   border-radius: 4px;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
 }
 
+.btn-buy-now:hover { background: var(--main-red-dark); }
+.btn-add-cart:hover { background: rgba(220, 38, 38, 0.2); }
+
+/* Lainnya */
 .section-header {
-  background-color: var(--bg-color);
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
   margin-bottom: 15px;
   color: var(--text-color);
 }
-
-.seller-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+.product-desc-text {
+  line-height: 1.6;
+  color: var(--text-color);
+  white-space: pre-wrap;
+}
+.detail-loading {
+  text-align: center;
+  padding: 5rem;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 
-.seller-avatar {
-  width: 50px;
-  height: 50px;
-  background-color: #ddd;
-  border-radius: 50%;
-}
-
+/* Mobile */
 @media (max-width: 768px) {
-  .detail-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .main-image {
-    height: 300px;
-  }
+  .detail-container { grid-template-columns: 1fr; gap: 20px; padding: 15px; }
+  .action-buttons { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
+  .detail-page-wrapper { padding-bottom: 80px; } /* Space buat tombol fixed */
 }

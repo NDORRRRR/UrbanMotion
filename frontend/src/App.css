@@ -24,7 +24,7 @@
   
   --bg-color: #111827;        /* Hitam Pekat */
   --card-bg: #1F2937;         /* Abu Gelap */
-  --text-color: #F3F4F6;      /* Putih */
+  --text-color: #f9fafb;      /* Putih */
   --text-muted: #9CA3AF;      /* Abu Terang */
   --border-color: #374151;    /* Border Gelap */
   --input-bg: #374151;        /* Input Gelap */
@@ -101,16 +101,14 @@ button {
   color: var(--text-color);
 }
 
-/* --- FIX INPUT & PLACEHOLDER (INI KUNCINYA) --- */
 
-/* 1. Style Input Umum */
 input, textarea, select {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--input-bg); 
-  color: var(--input-text) !important; /* Paksa warna teks */
+  color: var(--input-text) !important;
   box-sizing: border-box;
   font-family: inherit;
   font-size: 0.95rem;
@@ -118,20 +116,16 @@ input, textarea, select {
   transition: border-color 0.2s, background-color 0.3s, color 0.3s;
 }
 
-/* 2. Warna Placeholder (Teks petunjuk di dalam input) */
 ::placeholder {
   color: var(--placeholder) !important;
   opacity: 1; /* Firefox */
 }
 
-/* 3. Efek Fokus */
 input:focus, textarea:focus {
   border-color: var(--main-red);
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
 }
 
-/* 4. FIX AUTOFILL (Saat browser isi otomatis password/email) */
-/* Ini mencegah browser menimpa warna gelap kita dengan warna putih */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
