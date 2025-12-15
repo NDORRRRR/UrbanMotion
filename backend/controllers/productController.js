@@ -2,27 +2,51 @@ const db = require('../config/db');
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const query = `
-      SELECT 
+    const { search, brand, sort } = req.query;
+
+    let query = `
+      SELECT
         p.*, u.username as seller_name,
-        GROUP_CONCAT(pi.image_url) as images
+        SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) as image
       FROM products p
       JOIN users u ON p.seller_id = u.id
       LEFT JOIN product_images pi ON p.id = pi.product_id
-      GROUP BY p.id
-      ORDER BY p.created_at DESC
     `;
-    const [rows] = await db.query(query);
 
-    const products = rows.map(row => ({
-      ...row,
-      images: row.images ? row.images.split(',') : []
-    }));
+    const conditions = [];
+    const params = [];
 
-    res.json(products);
+    if (search) {
+      conditions.push('p.name LIKE ?');
+      params.push(`%${search}%`);
+    }
+
+    if (brand) {
+      conditions.push('p.brand = ?');
+      params.push(brand);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' GROUP BY p.id ';
+
+    if (sort) {
+      if (sort === 'cheap') { 
+        query += ' ORDER BY p.price ASC '; //termurah
+      } else if (sort === 'price_desc') {
+        query += ' ORDER BY p.price DESC '; //termahal
+      } else {
+        query += ' ORDER BY p.id DESC '; //terbaru
+      }
+    }
+
+    const [rows] = await db.query(query, params);
+    res.json(rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Gagal mengambil data produk.' });
+    res.status(500).json({ message: 'Server Error saat mengambil produk.' });
   }
 };
 
