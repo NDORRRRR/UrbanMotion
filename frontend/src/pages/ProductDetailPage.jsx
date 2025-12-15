@@ -12,19 +12,23 @@ function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
+  
   const [selectedSize, setSelectedSize] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [sizeList, setSizeList] = useState([]);
 
-  // Format Rupiah
   const formatRp = (price) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
   useEffect(() => {
     api.get(`/products/${id}`)
       .then(res => {
         setProduct(res.data);
-        if(res.data.images.length > 0) setActiveImage(res.data.images[0]);
+        if(res.data.images && res.data.images.length > 0) {
+            setActiveImage(res.data.images[0]);
+        } else {
+            setActiveImage(res.data.image_url);
+        }
         
-        // Parse string size jadi array. Contoh: "39, 40, 41" -> ["39", "40", "41"]
         if (res.data.sizes) {
           const sizesArray = res.data.sizes.split(',').map(s => s.trim());
           setSizeList(sizesArray);
@@ -34,99 +38,152 @@ function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleAddToCart = async () => {
+  const handleQtyChange = (val) => {
+    const newQty = quantity + val;
+    if (newQty >= 1 && newQty <= (product.stock || 1)) {
+        setQuantity(newQty);
+    }
+  };
+
+  const handleTransaction = async (isDirectBuy) => {
     if (!token) {
       alert('Login dulu Bos!');
       navigate('/login');
       return;
     }
     
-    // VALIDASI SIZE
     if (!selectedSize) {
-      alert('Pilih ukuran sepatu dulu, Bos!');
+      alert('⚠️ Mohon pilih Variasi (Ukuran) terlebih dahulu.');
       return;
     }
 
     try {
       await api.post('/cart', { 
         productId: product.id, 
-        quantity: 1,
-        size: selectedSize // Kirim size ke backend
+        quantity: quantity,
+        size: selectedSize 
       });
-      alert(`Berhasil! Size ${selectedSize} masuk keranjang.`);
+
+      if (isDirectBuy) {
+        navigate('/cart'); 
+      } else {
+        alert('✅ Produk berhasil dimasukkan ke Keranjang!');
+      }
     } catch (error) {
-      alert(error.response?.data?.message || 'Gagal nambah ke keranjang.');
+      alert(error.response?.data?.message || 'Gagal memproses.');
     }
   };
 
-  if (loading) return <p style={{textAlign:'center', marginTop:'5rem'}}>Loading...</p>;
+  if (loading) return <p style={{textAlign:'center', marginTop:'5rem'}}>Memuat Produk...</p>;
   if (!product) return <p style={{textAlign:'center', marginTop:'5rem'}}>Produk tidak ditemukan.</p>;
 
   return (
-    <div className="detail-container">
-      <div className="gallery-container">
-        <img src={activeImage} alt={product.name} className="main-image" />
-        <div className="thumb-grid">
-          {product.images.map((img, idx) => (
-            <img 
-              key={idx} src={img} alt="thumb" 
-              className={`thumb-img ${activeImage === img ? 'active' : ''}`}
-              onClick={() => setActiveImage(img)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="product-info-section">
-        <div className="detail-brand">{product.brand}</div>
-        <h1>{product.name}</h1>
-        <div className="detail-price">{formatRp(product.price)}</div>
+    <div className="detail-page-wrapper">
+      
+      <div className="detail-container">
         
-        <div className="detail-seller">
-           <span>🏪 Penjual: <strong>{product.seller_name}</strong></span>
-           <span>📦 Stok: <strong>{product.stock}</strong></span>
-        </div>
-
-        {/* PILIHAN SIZE */}
-        <div className="size-section" style={{marginBottom: '2rem'}}>
-          <label style={{display:'block', fontWeight:'600', marginBottom:'10px', color:'var(--text-color)'}}>Pilih Ukuran:</label>
-          <div style={{display:'flex', gap:'10px', flexWrap:'wrap'}}>
-            {sizeList.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                style={{
-                  padding: '10px 20px',
-                  border: selectedSize === size ? '2px solid var(--main-red)' : '1px solid var(--border-color)',
-                  backgroundColor: selectedSize === size ? 'var(--main-red)' : 'var(--card-bg)',
-                  color: selectedSize === size ? 'white' : 'var(--text-color)',
-                  cursor: 'pointer',
-                  borderRadius: '6px',
-                  fontWeight: 'bold'
-                }}
-              >
-                {size}
-              </button>
+        <div className="gallery-container">
+          <img src={activeImage} alt={product.name} className="main-image" />
+          
+          <div className="thumb-grid">
+            {product.images && product.images.map((img, idx) => (
+              <img 
+                key={idx} 
+                src={img} 
+                alt={`thumb-${idx}`} 
+                className={`thumb-img ${activeImage === img ? 'active' : ''}`}
+                onMouseEnter={() => setActiveImage(img)} // Ganti gambar pas di-hover (mirip Shopee)
+                onClick={() => setActiveImage(img)}
+              />
             ))}
           </div>
-          {!selectedSize && <small style={{color:'var(--main-red)', marginTop:'5px', display:'block'}}>* Wajib pilih satu</small>}
         </div>
 
-        <div className="detail-desc">
-          <h3>Deskripsi</h3>
-          <p className="desc-text">{product.description}</p>
-        </div>
+        <div className="product-info-section">
+          <h1 className="product-title">{product.name}</h1>
+          
+          <div className="product-meta">
+            <span className="rating-stars">⭐⭐⭐⭐⭐ 5.0</span>
+            <span>|</span>
+            <span>{product.brand}</span>
+            <span>|</span>
+            <span>Terjual 100+</span>
+          </div>
 
-        <div className="action-buttons">
-          <button 
-            className="btn-primary btn-buy-large" 
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-          >
-            {product.stock > 0 ? '+ TAMBAHKAN KE KERANJANG' : 'STOK HABIS'}
-          </button>
+          <div className="price-area">
+            <span className="price-text">{formatRp(product.price)}</span>
+          </div>
+
+          <div className="variant-row">
+            <span className="variant-label">Pilih Ukuran</span>
+            <div className="size-grid">
+              {sizeList.map((size) => (
+                <button
+                  key={size}
+                  className={`size-btn ${selectedSize === size ? 'active' : ''}`}
+                  onClick={() => setSelectedSize(size)}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="variant-row">
+            <span className="variant-label">Kuantitas</span>
+            <div className="qty-selector">
+                <button className="qty-btn" onClick={() => handleQtyChange(-1)}>-</button>
+                <input type="text" className="qty-input" value={quantity} readOnly />
+                <button className="qty-btn" onClick={() => handleQtyChange(1)}>+</button>
+            </div>
+            <span className="stock-info">Tersisa {product.stock} buah</span>
+          </div>
+
+          <div className="action-buttons">
+            <button 
+                className="btn-add-cart" 
+                onClick={() => handleTransaction(false)}
+                disabled={product.stock === 0}
+            >
+                🛒 Masukkan Keranjang
+            </button>
+            
+            <button 
+                className="btn-buy-now" 
+                onClick={() => handleTransaction(true)}
+                disabled={product.stock === 0}
+            >
+                Beli Sekarang
+            </button>
+          </div>
         </div>
       </div>
+
+      <div className="detail-container" style={{marginTop: '20px', display: 'block'}}>
+        
+        {/* Info Penjual */}
+        <div className="seller-info">
+            <div className="seller-avatar" style={{backgroundImage: 'url(https://via.placeholder.com/50)'}}></div>
+            <div>
+                <h4 style={{margin:0, color:'var(--text-color)'}}>{product.seller_name || 'Urban Official'}</h4>
+                <small style={{color:'var(--text-muted)'}}>Aktif 5 menit lalu</small>
+            </div>
+            <button className="btn-dark" style={{marginLeft:'auto', padding:'5px 15px', fontSize:'0.8rem'}}>Kunjungi Toko</button>
+        </div>
+
+        <div className="section-header">Spesifikasi Produk</div>
+        <div style={{padding: '0 15px 20px', color: 'var(--text-muted)', fontSize:'0.9rem'}}>
+            <p>Merek: {product.brand}</p>
+            <p>Stok: {product.stock}</p>
+            <p>Dikirim Dari: Jakarta Pusat</p>
+        </div>
+
+        <div className="section-header">Deskripsi Produk</div>
+        <p style={{padding: '0 15px', whiteSpace: 'pre-line', lineHeight: '1.6', color: 'var(--text-color)'}}>
+            {product.description}
+        </p>
+      </div>
+
     </div>
   );
 }
