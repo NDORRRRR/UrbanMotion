@@ -5,48 +5,53 @@ exports.getAllProducts = async (req, res) => {
     const { search, brand, sort } = req.query;
 
     let query = `
-      SELECT
-        p.*, u.username as seller_name,
-        SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) as image
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        -- Ambil 1 gambar, jika null ganti placeholder
+        COALESCE(SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1), 'https://via.placeholder.com/300') AS image_url 
       FROM products p
-      JOIN users u ON p.seller_id = u.id
+      -- Ganti JOIN jadi LEFT JOIN biar produk tanpa seller tetap muncul (safety net)
+      LEFT JOIN users u ON p.seller_id = u.id
       LEFT JOIN product_images pi ON p.id = pi.product_id
     `;
 
-    const conditions = [];
-    const params = [];
+    let conditions = [];
+    let params = [];
 
+    // Filter Search
     if (search) {
-      conditions.push('p.name LIKE ?');
-      params.push(`%${search}%`);
+      conditions.push("(p.name LIKE ? OR p.description LIKE ?)");
+      params.push(`%${search}%`, `%${search}%`);
     }
 
-    if (brand) {
-      conditions.push('p.brand = ?');
+    // Filter Brand
+    if (brand && brand !== 'All') {
+      conditions.push("p.brand = ?");
       params.push(brand);
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      query += " WHERE " + conditions.join(" AND ");
     }
 
-    query += ' GROUP BY p.id ';
+    query += " GROUP BY p.id, u.username"; 
 
-    if (sort) {
-      if (sort === 'cheap') { 
-        query += ' ORDER BY p.price ASC '; //termurah
-      } else if (sort === 'price_desc') {
-        query += ' ORDER BY p.price DESC '; //termahal
-      } else {
-        query += ' ORDER BY p.id DESC '; //terbaru
-      }
+    // Sorting
+    if (sort === 'cheap') {
+      query += " ORDER BY p.price ASC";
+    } else if (sort === 'expensive') {
+      query += " ORDER BY p.price DESC";
+    } else {
+      query += " ORDER BY p.created_at DESC";
     }
 
     const [rows] = await db.query(query, params);
     res.json(rows);
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error saat mengambil produk.' });
+    console.error("Error Get Products:", error); // Cek terminal kalau masih error
+    res.status(500).json({ message: 'Gagal mengambil data produk.' });
   }
 };
 
