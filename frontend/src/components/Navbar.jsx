@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
+import logoUrban from '../assets/logo.png';
+
 function Navbar({ theme, toggleTheme }) {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -15,7 +17,14 @@ function Navbar({ theme, toggleTheme }) {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <Link to="/" className="nav-logo">LOGO COK</Link>
+        <Link to="/" className="navbar-brand">
+          <img 
+            src={logoUrban}
+            alt="Urban Motion Logo"
+            height="40"
+            className="d-inline-block align-top"
+          />
+        </Link>
 
         <div className="nav-links">
           <Link to="/" className="nav-link">Home</Link>
