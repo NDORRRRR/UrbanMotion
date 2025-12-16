@@ -13,6 +13,42 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* ============ NAV LINKS ============ */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  margin-left: 2rem;
+}
+
+.nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--main-red);
+}
+
+/* Dashboard & Sell Links */
+.nav-link-dashboard {
+  background: rgba(185, 28, 28, 0.1);
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: var(--main-red);
+  font-weight: 600;
+}
+
+.nav-link-sell {
+  color: var(--main-red);
+  font-weight: 600;
+}
+
 /* Container */
 .nav-container {
   display: flex;
