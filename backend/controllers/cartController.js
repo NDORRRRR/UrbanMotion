@@ -7,7 +7,7 @@ exports.getCart = async (req, res) => {
       SELECT 
         c.product_id, c.quantity, c.size,
         p.name, p.price, p.stock, 
-        p.seller_id,  -- WAJIB ADA (Biar checkout tidak error 500)
+        p.seller_id,
         SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) AS image_url 
       FROM carts c
       JOIN products p ON c.product_id = p.id
@@ -28,7 +28,7 @@ exports.getCart = async (req, res) => {
 
 exports.updateCart = async (req, res) => {
   const userId = req.user.id;
-  const { productId, quantity, size } = req.body; // <--- Tangkap 'size'
+  const { productId, quantity, size } = req.body;
 
   if (!productId || !quantity || !size) {
     return res.status(400).json({ message: 'Pilih ukuran dulu, Bos!' });
@@ -67,17 +67,15 @@ exports.updateCart = async (req, res) => {
   }
 };
 
-// 3. Hapus Item
 exports.removeItem = async (req, res) => {
   const userId = req.user.id;
   const { productId } = req.params;
   const { size } = req.body;
-  //const sizeToDelete = req.query.size; 
 
   try {
     await db.query(
       `DELETE FROM carts WHERE user_id = ? AND product_id = ? AND size = ?`,
-      [userId, productId, sizeToDelete]
+      [userId, productId, size]
     );
     res.json({ message: 'Item dihapus.' });
   } catch (error) {

@@ -18,7 +18,6 @@ function CartPage() {
     }).format(price);
   };
   
-  // Ambil Data Keranjang
   const fetchCart = async () => {
     if (!token) {
       setLoading(false);
@@ -36,7 +35,6 @@ function CartPage() {
   };
 
   useEffect(() => {
-    // Wajib Login untuk lihat Keranjang
     if (!token) {
       navigate('/login');
       return;
@@ -44,44 +42,41 @@ function CartPage() {
     fetchCart();
   }, [token, navigate]);
 
-  // Logic Hapus Item
   const handleRemoveItem = async (productId, size) => {
     if (!window.confirm('Yakin ingin menghapus item ini dari keranjang?')) return;
     try {
-      // Panggil API DELETE
-      await api.delete(`/cart/${productId}?size=${size}`);
+      await api.delete(`/cart/${productId}`, {
+        data: { size } // Axios delete dengan body
+      });
       setCartItems(cartItems.filter(item => !(item.product_id === productId && item.size === size)));
     } catch (error) {
       alert('Gagal menghapus item.');
     }
   };
 
-  // Logic Ubah Kuantitas
-  const handleQuantityChange = async (productId, newQuantity) => {
-    if (newQuantity < 1) return handleRemoveItem(productId);
+  const handleQuantityChange = async (productId, size, newQuantity) => {
+    if (newQuantity < 1) return handleRemoveItem(productId, size);
     
-    // Optimistic Update: Langsung ubah di frontend dulu
+    // Optimistic Update
     setCartItems(
       cartItems.map(item => 
-        item.product_id === productId ? { ...item, quantity: newQuantity } : item
+        (item.product_id === productId && item.size === size) 
+          ? { ...item, quantity: newQuantity } 
+          : item
       )
     );
 
     try {
-      // Panggil API POST (Update)
-      await api.post('/cart', { productId, quantity: newQuantity });
+      await api.post('/cart', { productId, quantity: newQuantity, size });
     } catch (error) {
       alert('Gagal update kuantitas.');
-      // Kalau gagal, kita panggil fetchCart() untuk balik ke data asli
       fetchCart(); 
     }
   };
 
-
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
   if (loading) return <p style={{textAlign:'center', marginTop:'3rem'}}>Memuat Keranjang...</p>;
-
 
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
@@ -92,16 +87,15 @@ function CartPage() {
       ) : (
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
           
-          {/* KOLOM KIRI: LIST BARANG */}
           <div style={{ flex: 3, minWidth: '300px' }}>
             {cartItems.map(item => (
-              <div key={item.product_id} style={{ 
+              <div key={`${item.product_id}-${item.size}`} style={{ 
                   display: 'flex', 
-                  border: '1px solid var(--border-color)', // FIX
+                  border: '1px solid var(--border-color)',
                   padding: '1rem', marginBottom: '10px', 
-                  backgroundColor: 'var(--card-bg)', // FIX
+                  backgroundColor: 'var(--card-bg)',
                   borderRadius: '6px', alignItems: 'center',
-                  color: 'var(--text-color)' // FIX
+                  color: 'var(--text-color)'
                 }}>
                 
                 <img src={item.image_url} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', marginRight: '1rem' }} />
@@ -111,38 +105,48 @@ function CartPage() {
                   <p style={{ margin: '5px 0', fontWeight: 'bold', color: 'var(--main-red)' }}>{formatRp(item.price)}</p>
                 </div>
 
-                {/* Kuantitas */}
+                {/* 🔥 FIX: Kirim size ke function */}
                 <div style={{ width: '120px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <button onClick={() => handleQuantityChange(item.product_id, item.quantity - 1)} className="btn-dark" style={{ padding: '5px' }}>-</button>
+                  <button 
+                    onClick={() => handleQuantityChange(item.product_id, item.size, item.quantity - 1)} 
+                    className="btn-dark" 
+                    style={{ padding: '5px' }}
+                  >-</button>
                   <span style={{ margin: '0 10px', color: 'var(--text-color)' }}>{item.quantity}</span>
-                  <button onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)} className="btn-dark" style={{ padding: '5px' }} disabled={item.quantity >= item.stock}>+</button>
+                  <button 
+                    onClick={() => handleQuantityChange(item.product_id, item.size, item.quantity + 1)} 
+                    className="btn-dark" 
+                    style={{ padding: '5px' }} 
+                    disabled={item.quantity >= item.stock}
+                  >+</button>
                 </div>
 
-                {/* Subtotal Item */}
                 <div style={{ width: '120px', textAlign: 'right', fontWeight: 'bold', color: 'var(--text-color)' }}>
                   {formatRp(item.price * item.quantity)}
                 </div>
 
-                <button onClick={() => handleRemoveItem(item.product_id)} style={{ marginLeft: '1rem', background: 'none', color: 'var(--main-red)', fontSize:'1.2rem' }}>
+                {/* 🔥 FIX: Kirim size ke function */}
+                <button 
+                  onClick={() => handleRemoveItem(item.product_id, item.size)} 
+                  style={{ marginLeft: '1rem', background: 'none', color: 'var(--main-red)', fontSize:'1.2rem', border: 'none', cursor: 'pointer' }}
+                >
                   ✕
                 </button>
               </div>
             ))}
           </div>
 
-          {/* KOLOM KANAN: RINGKASAN */}
-          <div style={{ flex: 1, border: '1px solid var(--main-grey)', padding: '1.5rem', backgroundColor: 'white', borderRadius: '6px', height: 'fit-content' }}>
-            <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Ringkasan Pesanan</h3>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div style={{ flex: 1, border: '1px solid var(--border-color)', padding: '1.5rem', backgroundColor: 'var(--card-bg)', borderRadius: '6px', height: 'fit-content' }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', color: 'var(--text-color)' }}>Ringkasan Pesanan</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: 'var(--text-color)' }}>
               <span>Total Barang ({cartItems.length})</span>
               <span>{formatRp(subtotal)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.2rem', paddingTop: '10px', borderTop: '1px solid #eee' }}>
-              <span>Total Pembayaran</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.2rem', paddingTop: '10px', borderTop: '1px solid var(--border-color)' }}>
+              <span style={{ color: 'var(--text-color)' }}>Total Pembayaran</span>
               <span style={{ color: 'var(--main-red)' }}>{formatRp(subtotal)}</span>
             </div>
 
-            {/* Tombol Checkout (Next Step) */}
             <button 
                 className="btn-primary" 
                 style={{ width: '100%', marginTop: '1rem' }} 

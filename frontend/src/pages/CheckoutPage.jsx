@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7lACoB1-k3NZU'; 
+const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7tAcoBl-k3nZU'; 
 
 const loadMidtransScript = () => {
     return new Promise((resolve) => {
@@ -24,12 +24,10 @@ function CheckoutPage() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // State untuk Detail Alamat
     const [recipientName, setRecipientName] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
 
-    // Hitung total
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const finalAmount = subtotal; 
 
@@ -65,13 +63,11 @@ function CheckoutPage() {
     const handleCheckout = async (e) => {
         e.preventDefault();
         
-        // 1. Validasi Input
         if (!recipientName || !phone || !address) {
             alert('Semua detail alamat wajib diisi!');
             return;
         }
         
-        // 2. Gabung Alamat jadi satu string
         const fullAddressPayload = `Penerima: ${recipientName} | HP: ${phone} | Alamat: ${address}`;
 
         const itemsPayload = cartItems.map(item => ({
@@ -97,11 +93,11 @@ function CheckoutPage() {
                 window.snap.pay(snap_token, {
                     onSuccess: function(result) {
                         alert(`Pembayaran Sukses! Order ID: ${orderId}`);
-                        navigate('/history');
+                        navigate('/orders');
                     },
                     onPending: function(result) {
                         alert(`Pembayaran Pending! Silakan selesaikan pembayaran.`);
-                        navigate('/history');
+                        navigate('/orders');
                     },
                     onError: function(result) {
                         alert("Pembayaran Gagal.");
@@ -124,34 +120,32 @@ function CheckoutPage() {
 
     return (
         <div className="form-container" style={{maxWidth:'1000px', padding:'2rem', marginTop:'2rem'}}>
-            <h1 style={{color:'var(--main-dark)', borderBottom:'1px solid #ddd', paddingBottom:'10px', marginBottom:'2rem'}}>Ringkasan Checkout</h1>
+            <h1 style={{color:'var(--text-color)', borderBottom:'1px solid var(--border-color)', paddingBottom:'10px', marginBottom:'2rem'}}>Ringkasan Checkout</h1>
             
             <form onSubmit={handleCheckout} style={{display:'flex', gap:'30px', flexWrap:'wrap'}}>
                 
                 <div style={{flex: 2, minWidth: '300px'}}>
-                    <h3>1. Alamat Pengiriman</h3>
+                    <h3 style={{color: 'var(--text-color)'}}>1. Alamat Pengiriman</h3>
                     
                     <div className="form-group">
                         <label>Nama Penerima</label>
                         <input 
                             type="text" 
-                            className="lc-input"
                             value={recipientName}
                             onChange={(e) => setRecipientName(e.target.value)}
                             required
-                            style={{width: '100%', padding: '8px', marginBottom: '10px'}}
+                            style={{width: '95%', padding: '8px', marginBottom: '10px'}}
                         />
                     </div>
                     <div className="form-group">
                         <label>Nomor HP</label>
                         <input 
                             type="tel" 
-                            className="lc-input"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="08xxxxxxxxxx"
                             required
-                            style={{width: '100%', padding: '8px', marginBottom: '10px'}}
+                            style={{width: '95%', padding: '8px', marginBottom: '10px'}}
                         />
                     </div>
                     <div className="form-group">
@@ -162,35 +156,35 @@ function CheckoutPage() {
                             placeholder="Jalan, Nomor Rumah, RT/RW, Kecamatan, Kota"
                             rows="3" 
                             required
-                            style={{width: '100%', padding: '8px', marginBottom: '10px'}}
+                            style={{width: '95%', padding: '8px', marginBottom: '10px'}}
                         ></textarea>
                     </div>
 
-                    <h3 style={{marginTop: '20px'}}>2. Detail Pesanan</h3>
+                    <h3 style={{marginTop: '20px', color: 'var(--text-color)'}}>2. Detail Pesanan</h3>
                     {cartItems.map(item => (
-                        <div key={item.product_id} style={{display:'flex', alignItems:'center', borderBottom:'1px solid #eee', padding:'10px 0'}}>
+                        <div key={`${item.product_id}-${item.size}`} style={{display:'flex', alignItems:'center', borderBottom:'1px solid var(--border-color)', padding:'10px 0'}}>
                             <img src={item.image_url} alt={item.name} style={{width:'50px', height:'50px', objectFit:'cover', marginRight:'15px', borderRadius: '4px'}}/>
                             <div style={{flex: 1}}>
-                                <h4 style={{margin:0, fontSize:'1rem'}}>{item.name}</h4>
-                                <span style={{fontSize:'0.9rem', color: '#666'}}>Qty: {item.quantity}</span>
+                                <h4 style={{margin:0, fontSize:'1rem', color: 'var(--text-color)'}}>{item.name}</h4>
+                                <span style={{fontSize:'0.9rem', color: 'var(--text-muted)'}}>Size: {item.size} | Qty: {item.quantity}</span>
                             </div>
-                            <span style={{fontWeight:'bold'}}>{formatRp(item.price * item.quantity)}</span>
+                            <span style={{fontWeight:'bold', color: 'var(--text-color)'}}>{formatRp(item.price * item.quantity)}</span>
                         </div>
                     ))}
                 </div>
                 
-                <div style={{flex: 1, minWidth: '280px', backgroundColor:'#f9fafb', padding:'1.5rem', borderRadius:'8px', height: 'fit-content'}}>
-                    <h3>3. Pembayaran</h3>
-                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>
+                <div style={{flex: 1, minWidth: '280px', backgroundColor:'var(--card-bg)', padding:'1.5rem', borderRadius:'8px', border: '1px solid var(--border-color)', height: 'fit-content'}}>
+                    <h3 style={{color: 'var(--text-color)'}}>3. Pembayaran</h3>
+                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px', color: 'var(--text-color)'}}>
                         <span>Subtotal</span>
                         <span>{formatRp(subtotal)}</span>
                     </div>
-                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'15px', paddingBottom:'15px', borderBottom:'1px solid #ddd'}}>
+                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'15px', paddingBottom:'15px', borderBottom:'1px solid var(--border-color)', color: 'var(--text-color)'}}>
                         <span>Ongkir</span>
                         <span>Gratis</span>
                     </div>
                     <div style={{display:'flex', justifyContent:'space-between', fontWeight:'bold', fontSize:'1.4rem', marginBottom: '20px'}}>
-                        <span>TOTAL</span>
+                        <span style={{color: 'var(--text-color)'}}>TOTAL</span>
                         <span style={{color:'var(--main-red)'}}>{formatRp(finalAmount)}</span>
                     </div>
 
