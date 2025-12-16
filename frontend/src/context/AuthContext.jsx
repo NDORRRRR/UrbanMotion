@@ -11,8 +11,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // Nanti di sini kita bisa tambahkan logika
-      // untuk "fetch" data user berdasarkan token
     }
   }, [token]);
 
