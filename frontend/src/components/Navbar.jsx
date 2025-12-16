@@ -31,16 +31,36 @@ function Navbar({ theme, toggleTheme }) {
           <Link to="/legit-check" className="nav-link">Legit Check</Link>
           <Link to="/history" className="nav-link">Riwayat LC</Link>
 
+          {/* 🔥 DASHBOARD MENU - Khusus Seller/Admin */}
+          {user && (user.role === 'admin' || user.role === 'reseller') && (
+            <Link 
+              to="/dashboard" 
+              className='nav-link nav-link-dashboard' 
+              style={{ 
+                color: 'var(--main-red)', 
+                fontWeight: 'bold',
+                background: 'rgba(185, 28, 28, 0.1)',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: '0.2s'
+              }}
+            >
+              📊 Dashboard
+            </Link>
+          )}
+
+          {/* Menu Jual Sepatu (Seller/Admin Only) */}
           {user && (user.role === 'admin' || user.role === 'reseller') && (
             <Link to="/sell" className='nav-link' style={{ color: 'var(--main-red)', fontWeight: 'bold' }}>
                 + Jual Sepatu
             </Link>
           )}
+
           <Link to="/forum" className="nav-link">Forum</Link>
         </div>
 
         <div className="nav-auth">
-          {/* ⬇️ TOMBOL DARK MODE ⬇️ */}
+          {/* Tombol Dark Mode */}
           <button onClick={toggleTheme} className="nav-theme-btn" title="Ganti Tema">
             {theme === 'light' ? '🌙' : '☀️'}
           </button>

@@ -18,6 +18,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import ProfilePage from './pages/ProfilePage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import SellerDashboard from './pages/SellerDashboard'; // 🔥 NEW IMPORT
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -43,6 +44,9 @@ function App() {
           <Route path="/legit-check" element={<LegitCheckPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          
+          <Route path="/dashboard" element={<SellerDashboard />} />
+          
           <Route path="/sell" element={<AddProductPage />} />
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/create" element={<CreateThreadPage />} />
