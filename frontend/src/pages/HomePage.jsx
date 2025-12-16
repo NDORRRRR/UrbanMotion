@@ -31,6 +31,25 @@ function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get('/products', {
+          params: { search: searchTerm, brand: selectedBrand, sort: sortOrder }
+        });
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Gagal load produk:", error);
+        toast.error("Gagal memuat produk");
+      } finally {
+        setLoading(false);
+      }
+    };
+    const timeoutId = setTimeout(fetchProducts, 400); 
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedBrand, sortOrder]);
+
   // Fetch Data
   useEffect(() => {
     const fetchProducts = async () => {

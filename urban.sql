@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `carts` (
   CONSTRAINT `carts_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.carts: ~0 rows (approximately)
+-- Dumping data for table urbanmotion_db.carts: ~2 rows (approximately)
 INSERT INTO `carts` (`user_id`, `product_id`, `quantity`, `size`, `created_at`) VALUES
 	(2, 2, 1, '39', '2025-12-15 03:17:00'),
 	(2, 2, 1, '41', '2025-12-15 03:17:05');
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `products` (
 
 -- Dumping data for table urbanmotion_db.products: ~1 rows (approximately)
 INSERT INTO `products` (`id`, `seller_id`, `name`, `brand`, `price`, `description`, `stock`, `created_at`, `sizes`) VALUES
-	(2, 1, 'Skate Authentic in Red', 'Vans', 999000.00, 'Style VN0A2Z2ZRED\r\n\r\nCompletely redesigned for modern skateboarding, the Skate Classics collection delivers more of what skateboarders need to enable maximum progression. A vulcanized shoe made with classic canvas uppers that nod to our original heritage shoe, the Skate Authentic gives you the iconic look you want while bringing all the performance benefits skateboarders demand. A wardrobe staple of the skateboarding community for decades, these Skate Authentics were featured in Tony Hawk’s Pro Skater 3 + 4, cementing their place in skateboarding forever.', 1, '2025-11-18 17:06:22', '');
+	(2, 1, 'Skate Authentic in Red', 'Vans', 999000.00, 'Style VN0A2Z2ZRED\r\n\r\nCompletely redesigned for modern skateboarding, the Skate Classics collection delivers more of what skateboarders need to enable maximum progression. A vulcanized shoe made with classic canvas uppers that nod to our original heritage shoe, the Skate Authentic gives you the iconic look you want while bringing all the performance benefits skateboarders demand. A wardrobe staple of the skateboarding community for decades, these Skate Authentics were featured in Tony Hawk’s Pro Skater 3 + 4, cementing their place in skateboarding forever.', 1, '2025-11-18 17:06:22', '39, 40, 41, 42, 43, 44');
 
 -- Dumping structure for table urbanmotion_db.product_images
 CREATE TABLE IF NOT EXISTS `product_images` (

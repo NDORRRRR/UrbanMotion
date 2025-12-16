@@ -17,7 +17,6 @@ function ProductDetailPage() {
   
   const [activeImage, setActiveImage] = useState('');
   
-  // State Pilihan User
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [sizeList, setSizeList] = useState([]);
@@ -37,9 +36,10 @@ function ProductDetailPage() {
         
         // Parse Size
         if (data.sizes) {
-          setSizeList(data.sizes.split(',').map(s => s.trim()));
+          const parsedSizes = data.sizes.split(',').map(s => s.trim()).filter(s => s);
+          setSizeList(parsedSizes.length > 0 ? parsedSizes : ['38', '39', '40', '41', '42', '43', '44']);
         } else {
-          setSizeList(['38', '39', '40', '41', '42', '43', '44']); // Default
+          setSizeList(['38', '39', '40', '41', '42', '43', '44']);
         }
 
         // Rekomendasi
@@ -57,27 +57,20 @@ function ProductDetailPage() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // 🔥 UPDATE LOGIKA: Tambah Kurang Quantity
   const handleQtyChange = (val) => {
-    // 1. Pastikan stok dibaca sebagai ANGKA (Integer)
-    const stockAvailable = parseInt(product.stock) || 0; 
-
-    // 2. Hitung calon jumlah baru
+    const stockAvailable = parseInt(product?.stock) || 0;
     let newQty = quantity + val;
 
-    // 3. Batasan Minimal 1
     if (newQty < 1) {
         newQty = 1; 
         toast('Minimal beli 1 pasang ya Bos', { icon: '😅' });
     }
 
-    // 4. Batasan Maksimal Stok
     if (newQty > stockAvailable) {
         newQty = stockAvailable;
         toast.error(`Waduh, stok cuma sisa ${stockAvailable} pasang!`);
     }
 
-    // 5. Update State
     setQuantity(newQty);
   };
 
@@ -122,7 +115,6 @@ function ProductDetailPage() {
       
       <div className="detail-container">
         
-        {/* KIRI: FOTO */}
         <div className="gallery-container">
           <div className="main-image-wrapper">
              <img src={activeImage} alt={product.name} className="main-image" />
@@ -132,6 +124,7 @@ function ProductDetailPage() {
               <img 
                 key={idx} 
                 src={img} 
+                alt={`Thumbnail ${idx + 1}`}
                 className={`thumb-img ${activeImage === img ? 'active' : ''}`}
                 onMouseEnter={() => setActiveImage(img)}
                 onClick={() => setActiveImage(img)}
@@ -140,12 +133,11 @@ function ProductDetailPage() {
           </div>
         </div>
 
-        {/* KANAN: INFO */}
         <div className="product-info-section">
           <h1 className="product-title">{product.name}</h1>
-          <div className="product-meta">
+          <div className="product-meta" style={{color: 'var(--text-muted)', marginBottom: '10px'}}>
             <span>{product.brand}</span>
-            <span className="separator">|</span>
+            <span className="separator" style={{margin: '0 8px'}}>|</span>
             <span>Stok: <strong>{product.stock}</strong></span>
           </div>
 
@@ -171,14 +163,12 @@ function ProductDetailPage() {
           <div className="variant-row">
             <span className="variant-label">Jumlah</span>
             <div className="qty-selector">
-                {/* 🔥 Tombol MINUS */}
                 <button 
                     className="qty-btn" 
-                    type="button" // PENTING: biar gak refresh halaman
+                    type="button"
                     onClick={() => handleQtyChange(-1)}
                 >-</button>
                 
-                {/* Input Angka (Read Only biar gak ribet ngetik) */}
                 <input 
                     type="text" 
                     className="qty-input" 
@@ -186,7 +176,6 @@ function ProductDetailPage() {
                     readOnly 
                 />
                 
-                {/* 🔥 Tombol PLUS */}
                 <button 
                     className="qty-btn" 
                     type="button" 
@@ -208,10 +197,9 @@ function ProductDetailPage() {
 
       <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
          <h3 className="section-header">Deskripsi</h3>
-         <p className="product-desc-text">{product.description}</p>
+         <p className="product-desc-text">{product.description || 'Tidak ada deskripsi.'}</p>
       </div>
       
-      {/* RELATED PRODUCTS */}
       {relatedProducts.length > 0 && (
           <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
              <h3 className="section-header">Produk Serupa</h3>

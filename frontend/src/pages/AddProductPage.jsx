@@ -37,7 +37,7 @@ function AddProductPage() {
     try {
       await api.post('/products', formData);
       alert('Produk berhasil dijual!');
-      navigate('/'); // Balik ke Home
+      navigate('/');
     } catch (error) {
       alert(error.response?.data?.message || 'Gagal upload produk.');
     } finally {
@@ -56,65 +56,66 @@ function AddProductPage() {
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            required placeholder="Nike Air Jordan 1 High"
-            style={{ width: '95%', padding: '8px' }}
-        />
+            required 
+            placeholder="Nike Air Jordan 1 High"
+          />
         </div>
 
-        <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-group">
             <label>Brand</label>
             <input
-                type="text"
-                value={brand}
-                onChange={e => setBrand(e.target.value)}
-                required placeholder="Nike"
-                style={{ width: '95%', padding: '8px' }}
-            />
-          </div>
-          <div>
-            <label>Harga (Rp)</label>
-            <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(e.target.value)}
-                required placeholder="2500000"
-                style={{ width: '95%', padding: '8px' }}
+              type="text"
+              value={brand}
+              onChange={e => setBrand(e.target.value)}
+              required 
+              placeholder="Nike"
             />
           </div>
           <div className="form-group">
-            <label>Pilihan Ukuran (Pisahkan dengan koma)</label>
-            <input 
-              type="text" 
-              value={sizes} 
-              onChange={e => setSizes(e.target.value)} 
+            <label>Harga (Rp)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
               required 
-              placeholder="Contoh: 39, 40, 41, 42, 43" 
+              placeholder="2500000"
             />
+          </div>
         </div>
-      </div>
+
+        <div className="form-group">
+          <label>Pilihan Ukuran (Pisahkan dengan koma)</label>
+          <input 
+            type="text" 
+            value={sizes} 
+            onChange={e => setSizes(e.target.value)} 
+            required 
+            placeholder="Contoh: 39, 40, 41, 42, 43" 
+          />
+        </div>
 
         <div className="form-group">
           <label>Deskripsi & Kondisi</label>
           <textarea 
             value={description}
             onChange={e => setDescription(e.target.value)} 
-            rows="4" 
-            style={{ width: '96%', padding: '8px', borderColor: 'var(--main-grey)', borderRadius: '6px' }}
+            rows="4"
           ></textarea>
         </div>
 
         <div className="form-group">
-          <label>Foto Produk Utama</label>
+          <label>Foto Produk (Maksimal 6)</label>
           <input
             type="file"
             accept="image/*"
             multiple
             onChange={handleImageChange} 
             required
-            style={{ width: '90%', padding: '6px' }}
-        />
-        <small style={{color:'#666'}}>Tahan CTRL untuk memilih banyak foto sekaligus.</small>
+          />
+          <small style={{color:'var(--text-muted)', display: 'block', marginTop: '5px'}}>
+            Tahan CTRL untuk memilih banyak foto sekaligus.
+          </small>
         </div>
 
         <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%' }}>
