@@ -19,6 +19,7 @@ import ProfilePage from './pages/ProfilePage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import SellerDashboard from './pages/SellerDashboard'; // 🔥 NEW IMPORT
+import SellerDashboard from './pages/SellerDashboard';
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');

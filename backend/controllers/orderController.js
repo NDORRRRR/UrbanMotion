@@ -10,8 +10,10 @@ exports.getMyOrders = async (req, res) => {
     const ordersWithItems = await Promise.all(orders.map(async (order) => {
       const [items] = await db.query(
         `SELECT 
-            oi.*, p.name, 
-            -- Ambil 1 gambar saja untuk thumbnail
+            oi.*, 
+            oi.tracking_number,
+            oi.shipping_status,
+            p.name, 
             SUBSTRING_INDEX(GROUP_CONCAT(pi.image_url), ',', 1) AS image_url 
          FROM order_items oi
          JOIN products p ON oi.product_id = p.id
