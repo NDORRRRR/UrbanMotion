@@ -1,53 +1,41 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-const createStorage = (prefixName) => {
-  return multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads'); // Pastikan folder 'uploads' ada di root backend
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, prefixName + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  });
-};
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
-// Filter hanya terima gambar
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|avif|bmp)$/i;
+  
+  const isImageMime = file.mimetype.startsWith('image/');
+  const isExtValid = allowedExtensions.test(file.originalname);
 
-  if (extname && mimetype) {
-    return cb(null, true);
+  if (isImageMime || isExtValid) {
+    cb(null, true);
   } else {
-    cb(new Error('Hanya file gambar (jpeg, jpg, png, webp) yang diperbolehkan!'));
+    cb(new Error('Format file tidak didukung! Harap upload gambar (JPG, PNG, AVIF, WEBP).'), false);
   }
 };
 
-// Bikin 3 uploader berbeda
-const uploadProduct = multer({ 
-  storage: createStorage('product'),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Max 5MB
-  fileFilter: fileFilter
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Batas ukuran file 5MB
+  }
 });
 
-const uploadLegit = multer({ 
-  storage: createStorage('legit'),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: fileFilter
-});
-
-const uploadForum = multer({ 
-  storage: createStorage('forum'),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: fileFilter
-});
-
-// Export semua uploader
-module.exports = {
-  uploadProduct,
-  uploadLegit,
-  uploadForum
-};
+module.exports = upload;

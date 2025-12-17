@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const auth = require('../middleware/authMiddleware');
-const { uploadProduct } = require('../middleware/uploadMiddleware');
+const uploadProduct = require('../middleware/uploadMiddleware');
 const { validateProduct } = require('../middleware/validateInput');
 
 const verifySeller = (req, res, next) => {
