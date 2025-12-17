@@ -14,4 +14,5 @@ const verifyAdmin = (req, res, next) => {
 router.get('/pending', auth, verifyAdmin, adminController.getPendingChecks);
 router.put('/verify/:id', auth, verifyAdmin, adminController.verifyCheck);
 
+
 module.exports = router;
