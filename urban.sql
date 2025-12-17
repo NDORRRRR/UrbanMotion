@@ -28,9 +28,6 @@ CREATE TABLE IF NOT EXISTS `carts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table urbanmotion_db.carts: ~2 rows (approximately)
-INSERT INTO `carts` (`user_id`, `product_id`, `quantity`, `size`, `created_at`) VALUES
-	(2, 2, 1, '39', '2025-12-15 03:17:00'),
-	(2, 2, 1, '41', '2025-12-15 03:17:05');
 
 -- Dumping structure for table urbanmotion_db.forum_replies
 CREATE TABLE IF NOT EXISTS `forum_replies` (
@@ -120,11 +117,15 @@ CREATE TABLE IF NOT EXISTS `orders` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table urbanmotion_db.orders: ~1 rows (approximately)
 INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `shipping_address`, `payment_method`, `payment_status`, `order_status`, `created_at`) VALUES
-	(1, 2, 999000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'paid', 'processing', '2025-11-25 22:35:46');
+	(1, 2, 999000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'paid', 'shipped', '2025-11-25 22:35:46'),
+	(2, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:42:42'),
+	(3, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:23'),
+	(4, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:23'),
+	(5, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:35');
 
 -- Dumping structure for table urbanmotion_db.order_items
 CREATE TABLE IF NOT EXISTS `order_items` (
@@ -135,18 +136,22 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   `quantity` int NOT NULL,
   `price_at_purchase` decimal(15,2) NOT NULL,
   `size` varchar(50) NOT NULL DEFAULT '',
+  `tracking_number` varchar(100) DEFAULT NULL,
+  `shipping_status` enum('pending','processing','shipped','delivered') DEFAULT 'pending',
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
   KEY `product_id` (`product_id`),
-  KEY `seller_id` (`seller_id`),
+  KEY `idx_seller_shipping` (`seller_id`,`shipping_status`),
+  KEY `idx_tracking` (`tracking_number`),
   CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `order_items_ibfk_3` FOREIGN KEY (`seller_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.order_items: ~1 rows (approximately)
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `seller_id`, `quantity`, `price_at_purchase`, `size`) VALUES
-	(1, 1, 2, 1, 1, 999000.00, '');
+-- Dumping data for table urbanmotion_db.order_items: ~2 rows (approximately)
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `seller_id`, `quantity`, `price_at_purchase`, `size`, `tracking_number`, `shipping_status`) VALUES
+	(1, 1, 2, 1, 1, 999000.00, '', NULL, 'delivered'),
+	(2, 2, 2, 1, 3, 999000.00, '40', NULL, 'processing');
 
 -- Dumping structure for table urbanmotion_db.products
 CREATE TABLE IF NOT EXISTS `products` (
@@ -166,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `products` (
 
 -- Dumping data for table urbanmotion_db.products: ~1 rows (approximately)
 INSERT INTO `products` (`id`, `seller_id`, `name`, `brand`, `price`, `description`, `stock`, `created_at`, `sizes`) VALUES
-	(2, 1, 'Skate Authentic in Red', 'Vans', 999000.00, 'Style VN0A2Z2ZRED\r\n\r\nCompletely redesigned for modern skateboarding, the Skate Classics collection delivers more of what skateboarders need to enable maximum progression. A vulcanized shoe made with classic canvas uppers that nod to our original heritage shoe, the Skate Authentic gives you the iconic look you want while bringing all the performance benefits skateboarders demand. A wardrobe staple of the skateboarding community for decades, these Skate Authentics were featured in Tony Hawk’s Pro Skater 3 + 4, cementing their place in skateboarding forever.', 1, '2025-11-18 17:06:22', '39, 40, 41, 42, 43, 44');
+	(2, 1, 'Skate Authentic in Red', 'Vans', 999000.00, 'Style VN0A2Z2ZRED\r\n\r\nCompletely redesigned for modern skateboarding, the Skate Classics collection delivers more of what skateboarders need to enable maximum progression. A vulcanized shoe made with classic canvas uppers that nod to our original heritage shoe, the Skate Authentic gives you the iconic look you want while bringing all the performance benefits skateboarders demand. A wardrobe staple of the skateboarding community for decades, these Skate Authentics were featured in Tony Hawk’s Pro Skater 3 + 4, cementing their place in skateboarding forever.', 10, '2025-11-18 17:06:22', '39, 40, 41, 42, 43, 44');
 
 -- Dumping structure for table urbanmotion_db.product_images
 CREATE TABLE IF NOT EXISTS `product_images` (
@@ -205,7 +210,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Dumping data for table urbanmotion_db.users: ~2 rows (approximately)
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `role`, `created_at`, `full_name`, `phone`, `address`) VALUES
-	(1, 'mandor', 'adhimreko@gmail.com', '$2b$10$SvbHOVkmoXC3LskSPmdV1OhJ4YRKOGRFSxobQnkP9Db5PdSBy8j7S', 'admin', '2025-11-18 03:30:53', NULL, NULL, NULL),
+	(1, 'mandor', 'adhimreko@gmail.com', '$2b$10$SvbHOVkmoXC3LskSPmdV1OhJ4YRKOGRFSxobQnkP9Db5PdSBy8j7S', 'admin', '2025-11-18 03:30:53', NULL, '082125608649', NULL),
 	(2, 'ndor', 'adhimreko1@gmail.com', '$2b$10$OMLhg/HgVjPK4SVHTqsb4OZ9fSlubXQMYwmzf30s5xecDyafgDOma', 'user', '2025-11-19 05:52:44', 'Adhim Musafak', '082125608649', 'Griya Suci Permai G7/16');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
