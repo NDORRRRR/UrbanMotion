@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-const MIDTRANS_SCRIPT_URL = 'https://app.sandbox.midtrans.com/snap/snap.js';
-const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7tAcoBl-k3nZU'; 
+// const MIDTRANS_SCRIPT_URL = 'https://app.sandbox.midtrans.com/snap/snap.js';
+// const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7tAcoBl-k3nZU'; 
 
 const loadMidtransScript = () => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         if (window.snap) {
             resolve();
             return;
         }
-        const script = document.createElement('script');
-        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
-        script.setAttribute('data-client-key', MIDTRANS_CLIENT_KEY);
-        script.onload = resolve;
-        document.body.appendChild(script);
+        
+        // Fetch client key from backend
+        api.get('/config/midtrans-key')
+            .then(res => {
+                const script = document.createElement('script');
+                script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+                script.setAttribute('data-client-key', res.data.clientKey);
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            })
+            .catch(reject);
     });
 };
 

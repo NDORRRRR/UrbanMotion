@@ -34,36 +34,55 @@ exports.updateCart = async (req, res) => {
     return res.status(400).json({ message: 'Pilih ukuran dulu, Bos!' });
   }
 
+  const connection = await db.getConnection();
+  
   try {
-    // Cek Stok
-    const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [productId]);
-    if (productRows.length === 0) return res.status(404).json({ message: 'Produk hilang.' });
+    await connection.beginTransaction();
+
+    // Check stock with row lock (prevent race condition)
+    const [productRows] = await connection.query(
+      'SELECT stock FROM products WHERE id = ? FOR UPDATE', 
+      [productId]
+    );
+    
+    if (productRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'Produk tidak ditemukan.' });
+    }
     
     const availableStock = productRows[0].stock;
-    if (quantity > availableStock) return res.status(400).json({ message: 'Stok habis.' });
+    if (quantity > availableStock) {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Stok tidak cukup.' });
+    }
 
-    // Cek apakah barang DENGAN UKURAN SAMA sudah ada?
-    const [existing] = await db.query(
+    // Check if item exists in cart
+    const [existing] = await connection.query(
       `SELECT * FROM carts WHERE user_id = ? AND product_id = ? AND size = ?`,
       [userId, productId, size]
     );
 
     if (existing.length > 0) {
-      await db.query(
+      await connection.query(
         `UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ? AND size = ?`,
         [quantity, userId, productId, size]
       );
     } else {
-      await db.query(
+      await connection.query(
         `INSERT INTO carts (user_id, product_id, quantity, size) VALUES (?, ?, ?, ?)`,
         [userId, productId, quantity, size]
       );
     }
 
+    await connection.commit();
     res.json({ message: 'Masuk keranjang!' });
+    
   } catch (error) {
+    await connection.rollback();
     console.error(error);
     res.status(500).json({ message: 'Gagal update keranjang.' });
+  } finally {
+    connection.release();
   }
 };
 

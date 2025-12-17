@@ -71,6 +71,16 @@ exports.createTransaction = async (req, res) => {
         );
     }
     
+    for (const item of items) {
+      await db.query(
+        'UPDATE products SET stock = stock - ? WHERE id = ?',
+        [item.quantity, item.product_id]
+      );
+    }
+    
+    // Clear cart after successful order
+    await db.query('DELETE FROM carts WHERE user_id = ?', [userId]);
+
     res.json({ 
         message: 'Order dibuat, siap bayar!',
         snap_token: snapToken, 
