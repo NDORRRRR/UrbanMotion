@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `carts` (
   CONSTRAINT `carts_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.carts: ~2 rows (approximately)
+-- Dumping data for table urbanmotion_db.carts: ~0 rows (approximately)
 
 -- Dumping structure for table urbanmotion_db.forum_replies
 CREATE TABLE IF NOT EXISTS `forum_replies` (
@@ -44,8 +44,6 @@ CREATE TABLE IF NOT EXISTS `forum_replies` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table urbanmotion_db.forum_replies: ~0 rows (approximately)
-INSERT INTO `forum_replies` (`id`, `thread_id`, `user_id`, `content`, `created_at`) VALUES
-	(1, 3, 2, 'anjay\n', '2025-11-26 06:13:31');
 
 -- Dumping structure for table urbanmotion_db.forum_threads
 CREATE TABLE IF NOT EXISTS `forum_threads` (
@@ -56,13 +54,11 @@ CREATE TABLE IF NOT EXISTS `forum_threads` (
   `category` enum('discussion','marketplace') NOT NULL DEFAULT 'discussion',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
+  KEY `idx_forum_threads_user` (`user_id`,`created_at`),
   CONSTRAINT `forum_threads_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.forum_threads: ~1 rows (approximately)
-INSERT INTO `forum_threads` (`id`, `user_id`, `title`, `content`, `category`, `created_at`) VALUES
-	(3, 2, 'asdasdasd', 'asdasdasd', 'discussion', '2025-11-26 06:13:24');
+-- Dumping data for table urbanmotion_db.forum_threads: ~0 rows (approximately)
 
 -- Dumping structure for table urbanmotion_db.forum_thread_images
 CREATE TABLE IF NOT EXISTS `forum_thread_images` (
@@ -87,10 +83,11 @@ CREATE TABLE IF NOT EXISTS `legit_checks` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
+  KEY `idx_legit_checks_status` (`status`,`created_at`),
   CONSTRAINT `legit_checks_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.legit_checks: ~1 rows (approximately)
+-- Dumping data for table urbanmotion_db.legit_checks: ~0 rows (approximately)
 
 -- Dumping structure for table urbanmotion_db.legit_check_images
 CREATE TABLE IF NOT EXISTS `legit_check_images` (
@@ -115,17 +112,12 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `order_status` enum('new','processing','shipped','delivered','cancelled') NOT NULL DEFAULT 'new',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
+  KEY `idx_orders_user_status` (`user_id`,`order_status`),
+  KEY `idx_orders_payment` (`payment_status`,`created_at`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.orders: ~1 rows (approximately)
-INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `shipping_address`, `payment_method`, `payment_status`, `order_status`, `created_at`) VALUES
-	(1, 2, 999000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'paid', 'shipped', '2025-11-25 22:35:46'),
-	(2, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:42:42'),
-	(3, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:23'),
-	(4, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:23'),
-	(5, 2, 2997000.00, 'Penerima: Adhim Musafak | HP: 082125608649 | Alamat: Griya Suci Permai G7/16', 'midtrans_snap', 'pending', 'new', '2025-12-17 00:43:35');
+-- Dumping data for table urbanmotion_db.orders: ~5 rows (approximately)
 
 -- Dumping structure for table urbanmotion_db.order_items
 CREATE TABLE IF NOT EXISTS `order_items` (
@@ -139,19 +131,16 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   `tracking_number` varchar(100) DEFAULT NULL,
   `shipping_status` enum('pending','processing','shipped','delivered') DEFAULT 'pending',
   PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
   KEY `product_id` (`product_id`),
   KEY `idx_seller_shipping` (`seller_id`,`shipping_status`),
   KEY `idx_tracking` (`tracking_number`),
+  KEY `idx_order_items_order` (`order_id`),
   CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `order_items_ibfk_3` FOREIGN KEY (`seller_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table urbanmotion_db.order_items: ~2 rows (approximately)
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `seller_id`, `quantity`, `price_at_purchase`, `size`, `tracking_number`, `shipping_status`) VALUES
-	(1, 1, 2, 1, 1, 999000.00, '', NULL, 'delivered'),
-	(2, 2, 2, 1, 3, 999000.00, '40', NULL, 'processing');
 
 -- Dumping structure for table urbanmotion_db.products
 CREATE TABLE IF NOT EXISTS `products` (
@@ -164,14 +153,18 @@ CREATE TABLE IF NOT EXISTS `products` (
   `stock` int DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `sizes` varchar(255) NOT NULL DEFAULT '',
+  `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `seller_id` (`seller_id`),
+  KEY `idx_products_brand` (`brand`),
+  KEY `idx_products_seller` (`seller_id`,`created_at`),
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`seller_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table urbanmotion_db.products: ~1 rows (approximately)
-INSERT INTO `products` (`id`, `seller_id`, `name`, `brand`, `price`, `description`, `stock`, `created_at`, `sizes`) VALUES
-	(2, 1, 'Skate Authentic in Red', 'Vans', 999000.00, 'Style VN0A2Z2ZRED\r\n\r\nCompletely redesigned for modern skateboarding, the Skate Classics collection delivers more of what skateboarders need to enable maximum progression. A vulcanized shoe made with classic canvas uppers that nod to our original heritage shoe, the Skate Authentic gives you the iconic look you want while bringing all the performance benefits skateboarders demand. A wardrobe staple of the skateboarding community for decades, these Skate Authentics were featured in Tony Hawk’s Pro Skater 3 + 4, cementing their place in skateboarding forever.', 10, '2025-11-18 17:06:22', '39, 40, 41, 42, 43, 44');
+INSERT INTO `products` (`id`, `seller_id`, `name`, `brand`, `price`, `description`, `stock`, `created_at`, `sizes`, `is_deleted`) VALUES
+	(3, 3, 'Skate Authentic in Red', 'Other', 550000.00, 'Skate low top shoe\r\n10 oz canvas upper for a durable and classic look\r\nAs seen in Tony Hawk’s™ Pro Skater™ 3 + 4\r\nUnpadded, low-profile cuff for a minimalist fit\r\nMetal eyelets. Four on sizes 3.5 - 6 and five on sizes 6.5+\r\nLace-up closure for a secure and customizable fit\r\nInternal tongue straps secure the tongue, preventing it from sliding during movement\r\nA molded heel counter provides structure support, improving stability and fit\r\nPopCush™ footbeds offer impact protection and reduce leg fatigue for extended skating\r\nDuraCap™ is a thin rubber underlay designed specifically for skateboarding, placed in key areas to protect against griptape wear\r\nHigher sidewalls for increased shoe protection and durability\r\nSickStick™ rubber—our stickiest yet—keeps you glued to your board\r\nSignature waffle sole pattern outsole for reliable grip since \'66\r\nVulcanized sole for superior board feel and flexibility', 5, '2025-12-17 19:56:06', '37, 38, 39, 40, 41, 42, 43, 44', 0),
+	(4, 3, 'Skate Authentic Shoe', 'Other', 960000.00, 'Details\r\nSkate low top shoe\r\nDesigned for skateboarding with enhanced durability and performance features\r\n10 oz canvas upper for a durable and classic look\r\nUnpadded, low-profile cuff for a minimalist fit\r\nMetal eyelets. Four on sizes 3.5 - 6 and five on sizes 6.5+\r\nLace-up closure for a secure and customizable fit\r\nInternal tongue straps secure the tongue, preventing it from sliding during movement\r\nA molded heel counter provides structure support, improving stability and fit\r\nPopCush™ footbeds offer impact protection and reduce leg fatigue for extended skating\r\nDURACAP™ underlays add reinforcement to high-wear areas\r\nHigher sidewalls for increased shoe protection and durability\r\nSickStick™ rubber waffle outsole provides maximum grip and traction on your board\r\nSignature waffle sole pattern outsole for reliable grip since \'66\r\nVulcanized sole for superior board feel and flexibility', 10, '2025-12-17 20:05:08', '37, 38, 39, 40, 41, 42, 43, 44', 0),
+	(5, 4, 'Adidas Bali Shoes', 'Adidas', 2200000.00, 'Part of the iconic island series, the adidas Bali shoes bring you back to when they debuted in 1977 and were made in France. Slip into the premium suede upper and escape into comfort. Their authentic design evokes carefree explorations, while a textile lining and rubber outsole provide all-day ease. For laid-back adventures with no-fuss style, lace up a piece of paradise.', 10, '2025-12-17 20:42:15', '36, 37, 38, 39, 40, 41, 42, 43, 44', 0);
 
 -- Dumping structure for table urbanmotion_db.product_images
 CREATE TABLE IF NOT EXISTS `product_images` (
@@ -181,16 +174,25 @@ CREATE TABLE IF NOT EXISTS `product_images` (
   PRIMARY KEY (`id`),
   KEY `product_id` (`product_id`),
   CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.product_images: ~6 rows (approximately)
+-- Dumping data for table urbanmotion_db.product_images: ~15 rows (approximately)
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`) VALUES
-	(1, 2, 'http://localhost:3001/uploads/legit-1763485582224-413886730.jpg'),
-	(2, 2, 'http://localhost:3001/uploads/legit-1763485582226-498827620.jpg'),
-	(3, 2, 'http://localhost:3001/uploads/legit-1763485582227-567113820.jpg'),
-	(4, 2, 'http://localhost:3001/uploads/legit-1763485582228-75418829.jpg'),
-	(5, 2, 'http://localhost:3001/uploads/legit-1763485582231-360442980.jpg'),
-	(6, 2, 'http://localhost:3001/uploads/legit-1763485582239-476945187.jpg');
+	(7, 3, 'http://localhost:3001/uploads/product-1766001366497-837667636.jpg'),
+	(8, 3, 'http://localhost:3001/uploads/product-1766001366501-989525981.jpg'),
+	(9, 3, 'http://localhost:3001/uploads/product-1766001366505-813737748.jpg'),
+	(10, 3, 'http://localhost:3001/uploads/product-1766001366507-245483765.jpg'),
+	(11, 3, 'http://localhost:3001/uploads/product-1766001366509-480055640.jpg'),
+	(12, 4, 'http://localhost:3001/uploads/product-1766001908451-111237090.png'),
+	(13, 4, 'http://localhost:3001/uploads/product-1766001908452-528124080.png'),
+	(14, 4, 'http://localhost:3001/uploads/product-1766001908453-371857377.png'),
+	(15, 4, 'http://localhost:3001/uploads/product-1766001908453-875237133.png'),
+	(16, 4, 'http://localhost:3001/uploads/product-1766001908464-369355903.png'),
+	(17, 5, 'http://localhost:3001/uploads/product-1766004135420-186214395.png'),
+	(18, 5, 'http://localhost:3001/uploads/product-1766004135421-564350233.png'),
+	(19, 5, 'http://localhost:3001/uploads/product-1766004135421-746966243.png'),
+	(20, 5, 'http://localhost:3001/uploads/product-1766004135422-194932713.png'),
+	(21, 5, 'http://localhost:3001/uploads/product-1766004135424-716360715.png');
 
 -- Dumping structure for table urbanmotion_db.users
 CREATE TABLE IF NOT EXISTS `users` (
@@ -206,12 +208,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table urbanmotion_db.users: ~2 rows (approximately)
+-- Dumping data for table urbanmotion_db.users: ~4 rows (approximately)
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `role`, `created_at`, `full_name`, `phone`, `address`) VALUES
 	(1, 'mandor', 'adhimreko@gmail.com', '$2b$10$SvbHOVkmoXC3LskSPmdV1OhJ4YRKOGRFSxobQnkP9Db5PdSBy8j7S', 'admin', '2025-11-18 03:30:53', NULL, '082125608649', NULL),
-	(2, 'ndor', 'adhimreko1@gmail.com', '$2b$10$OMLhg/HgVjPK4SVHTqsb4OZ9fSlubXQMYwmzf30s5xecDyafgDOma', 'user', '2025-11-19 05:52:44', 'Adhim Musafak', '082125608649', 'Griya Suci Permai G7/16');
+	(2, 'ndor', 'adhimreko1@gmail.com', '$2b$10$OMLhg/HgVjPK4SVHTqsb4OZ9fSlubXQMYwmzf30s5xecDyafgDOma', 'user', '2025-11-19 05:52:44', 'Adhim Musafak', '082125608649', 'Griya Suci Permai G7/16'),
+	(3, 'vans_indonesia', 'fadhim@gmail.com', '$2b$10$27.WpKxlgvk4.q0S7rPm4OmhIKfFFGx9LIstzQehjX2AGAW5VWtou', 'admin', '2025-12-17 15:01:26', NULL, NULL, NULL),
+	(4, 'Adidas_Indonesia', 'adidas@gmail.com', '$2b$10$PyYJ9EOdEtzI2xuy5WHaYu/OCEeVstCpQBKGdzWfQWbcMBce06zS6', 'admin', '2025-12-17 20:12:03', NULL, NULL, NULL);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
