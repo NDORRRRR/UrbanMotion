@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom'; // ✅ FIX: Import yang ditambahkan
+import { useNavigate } from 'react-router-dom'; 
 import api from '../services/api';
 import '../App.css'; 
 
 const ProfilePage = () => {
   // ========== STATE & HOOKS ==========
   const { user, login, logout } = useAuth(); 
-  const navigate = useNavigate(); // ✅ FIX: Deklarasi useNavigate
+  const navigate = useNavigate();
   
   const [isEditing, setIsEditing] = useState(false); // Toggle mode edit
   const [loading, setLoading] = useState(false); // Loading state saat save
