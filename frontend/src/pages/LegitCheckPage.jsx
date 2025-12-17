@@ -52,7 +52,7 @@ function LegitCheckPage() {
     try {
       const formData = new FormData();
       
-      formData.append('sneaker_name', sneakerName); // Masukkan teks
+      formData.append('sneaker_name', brand);
       
       selectedFiles.forEach((file) => {
         formData.append('images', file); 

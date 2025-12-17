@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { motion } from 'framer-motion'; // Import animasi
-import { Toaster } from 'react-hot-toast'; // Import notifikasi cantik
+import { Toaster, toast } from 'react-hot-toast'; // Import notifikasi cantik
 import './HomePage.css';
 
 // Banner Tetap

@@ -170,9 +170,15 @@ exports.deleteProduct = async (req, res) => {
         res.json({ message: 'Product deleted successfully!' });
 
     } catch (error) {
-        console.error('Error deleting product:', error);
-        res.status(500).json({ message: 'Failed to delete product' });
-    }
+      if (error.errno === 1451) {
+          return res.status(400).json({ 
+              message: 'Tidak dapat menghapus produk ini karena sudah ada dalam riwayat pesanan (transaksi).' 
+          });
+      }
+
+      console.error('Error deleting product:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
 };
 
 // ===== 🆕 UPDATE ORDER STATUS =====
