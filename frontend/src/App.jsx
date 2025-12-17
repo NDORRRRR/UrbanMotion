@@ -20,6 +20,7 @@ import OrderHistoryPage from './pages/OrderHistoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 // import Dashboard from './pages/SellerDashboard';
 import SellerDashboard from './pages/SellerDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');

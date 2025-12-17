@@ -1,69 +1,59 @@
 const db = require('../config/db');
 
-const getProfile = (req, res) => {
-  const userId = req.user.id;
+const getProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-  const sql = 'SELECT id, username, email, role, phone, created_at FROM users WHERE id = ?';
-  db.query(sql, [userId], (err, results) => {
-    if (err) {
-      console.error('Error fetching profile:', err);
-      return res.status(500).json({ message: 'Server Error fetching profile' });
-    }
+    const sql = 'SELECT id, username, email, role, phone, created_at FROM users WHERE id = ?';
+    const [results] = await db.query(sql, [userId]);
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     res.json(results[0]);
-  });
+  } catch (err) {
+    console.error('Error fetching profile:', err);
+    res.status(500).json({ message: 'Server Error fetching profile' });
+  }
 };
 
-const updateProfile = (req, res) => {
-  const userId = req.user.id;
-  const { username, email, phone } = req.body;
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { username, email, phone } = req.body;
 
-  if (!username || !email) {
-    return res.status(400).json({ message: 'Username and Email are required' });
-  }
-
-  const sql = 'UPDATE users SET username = ?, email = ?, phone = ? WHERE id = ?';
-  
-  db.query(sql, [username, email, phone, userId], (err, result) => {
-    if (err) {
-      console.error('Error updating profile:', err);
-      return res.status(500).json({ message: 'Gagal mengupdate profil', error: err.message });
+    if (!username || !email) {
+      return res.status(400).json({ message: 'Username and Email are required' });
     }
+
+    const sql = 'UPDATE users SET username = ?, email = ?, phone = ? WHERE id = ?';
+    
+    const [result] = await db.query(sql, [username, email, phone, userId]);
     
     if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'User not found or no changes made' });
+      return res.status(404).json({ message: 'User not found or no changes made' });
     }
 
-    const updatedUser = { 
-        id: userId, 
-        username, 
-        email, 
-        phone, 
-        role: req.user.role,
-        created_at: req.user.created_at 
-    };
-    
-    res.json({ message: 'Profil berhasil diperbarui', user: updatedUser });
-  });
-};
+    const [updatedUser] = await db.query(
+      'SELECT id, username, email, role, phone, created_at FROM users WHERE id = ?',
+      [userId]
+    );
 
-// exports.updateProfile = async (req, res) => {
-//   const { full_name, phone, address } = req.body;
-//   try {
-//     await db.query(
-//       'UPDATE users SET full_name = ?, phone = ?, address = ? WHERE id = ?',
-//       [full_name, phone, address, req.user.id]
-//     );
-//     res.json({ message: 'Profil berhasil diupdate!' });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Gagal update profil.' });
-//   }
-// };
+    res.json({ 
+      message: 'Profil berhasil diperbarui', 
+      user: updatedUser[0] 
+    });
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Username atau email sudah digunakan' });
+    }
+    
+    res.status(500).json({ message: 'Gagal mengupdate profil', error: err.message });
+  }
+};
 
 module.exports = {
   getProfile,

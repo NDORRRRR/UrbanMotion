@@ -15,9 +15,15 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const PORT = 3001;
+const corsOptions = {
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 
 app.use(cors());
 app.use(express.json());
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
@@ -34,7 +40,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server backend wonten ten http://localhost:${PORT}`);

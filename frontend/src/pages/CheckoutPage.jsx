@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
+const MIDTRANS_SCRIPT_URL = 'https://app.sandbox.midtrans.com/snap/snap.js';
 const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7tAcoBl-k3nZU'; 
 
 const loadMidtransScript = () => {
