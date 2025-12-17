@@ -161,3 +161,188 @@ input:-webkit-autofill:active {
   margin-bottom: 1rem;
   text-align: center;
 }
+
+/* Kartu Utama Pesanan */
+.order-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Header Kartu (Bagian atas yang ada ID & Tanggal) */
+.order-header {
+  background-color: var(--bg-color); /* Sedikit lebih gelap dari card di light mode */
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Bagian Status (Paid, Pending, dll) */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Container List Barang */
+.order-body {
+  padding: 1rem;
+}
+
+/* Item Individual */
+.order-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Gambar Produk */
+.item-image {
+  width: 60px;
+  height: 60px;
+  background-color: var(--border-color); /* Placeholder saat gambar loading */
+  margin-right: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Footer Kartu (Alamat Pengiriman) */
+.order-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background-color: var(--card-bg);
+}
+
+/* Teks Helper agar ikut tema gelap */
+.text-main {
+  color: var(--text-color);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+
+.profile-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  max-width: 600px;
+  margin: 0 auto; /* Tengah secara horizontal */
+}
+
+/* Avatar Besar di tengah */
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--main-red), #ff8f8f);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  border: 4px solid var(--bg-color);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.profile-role-badge {
+  display: inline-block;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--main-red);
+  padding: 0.25rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Form Group untuk Info */
+.profile-info-group {
+  text-align: left;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-info-group:last-child {
+  border-bottom: none;
+}
+
+.profile-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.profile-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-muted);
+  background-color: var(--bg-color);
+}
+
+.edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.edit-input:focus {
+  border-color: var(--main-red);
+  outline: none;
+}

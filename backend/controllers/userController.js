@@ -1,4 +1,21 @@
 const db = require('../config/db');
+const updateProfile = (req, res) => {
+  const userId = req.user.id;
+  const { username, email, phone } = req.body;
+
+  const sql = 'UPDATE users SET username = ?, email = ?, phone = ? WHERE id = ?';
+
+  db.query(sql, [username, email, phone, userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Gagal mengupdate profil' });
+    }
+    
+    // Kembalikan data user terbaru
+    const updatedUser = { id: userId, username, email, phone, role: req.user.role };
+    res.json({ message: 'Profil berhasil diperbarui', user: updatedUser });
+  });
+};
 
 exports.getProfile = async (req, res) => {
   try {
@@ -26,4 +43,9 @@ exports.updateProfile = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Gagal update profil.' });
   }
+};
+
+module.exports = {
+  updateProfile,
+  getProfile
 };

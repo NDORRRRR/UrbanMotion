@@ -1,4 +1,3 @@
-// src/pages/OrderHistoryPage.jsx
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -13,61 +12,93 @@ function OrderHistoryPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const formatRp = (price) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+  const formatRp = (price) => 
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
-  const getStatusColor = (status) => {
-    if (status === 'paid' || status === 'settlement') return '#d1fae5'; // Hijau
-    if (status === 'pending') return '#fef3c7'; // Kuning
-    if (status === 'failed' || status === 'expire') return '#fee2e2'; // Merah
-    return '#eee';
+  const getStatusStyle = (status) => {
+    if (status === 'paid' || status === 'settlement') return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }; // Hijau
+    if (status === 'pending') return { backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }; // Kuning/Orange
+    if (status === 'failed' || status === 'expire') return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }; // Merah
+    return { backgroundColor: 'var(--border-color)', color: 'var(--text-muted)' }; // Default
   };
 
-  if (loading) return <p style={{textAlign:'center', marginTop:'2rem'}}>Loading...</p>;
+  if (loading) return (
+    <div style={{ textAlign: 'center', marginTop: '3rem', color: 'var(--text-muted)' }}>
+      Loading riwayat...
+    </div>
+  );
 
   return (
-    <div style={{maxWidth:'900px', margin:'2rem auto', padding:'1rem'}}>
-      <h1 style={{color:'var(--main-dark)', marginBottom:'1.5rem'}}>Riwayat Belanja</h1>
+    <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem' }}>
+      <h2 style={{ color: 'var(--text-color)', marginBottom: '1.5rem', fontWeight: '700' }}>
+        Riwayat Belanja
+      </h2>
 
       {orders.length === 0 ? (
-        <p>Belum ada pesanan.</p>
+        <div className="order-card" style={{ padding: '2rem', textAlign: 'center' }}>
+          <p className="text-muted">Belum ada pesanan.</p>
+        </div>
       ) : (
-        orders.map(order => (
-          <div key={order.id} style={{border:'1px solid var(--main-grey)', borderRadius:'8px', marginBottom:'1.5rem', overflow:'hidden', backgroundColor:'white'}}>
-            {/* Header Order */}
-            <div style={{padding:'1rem', background:'#f9fafb', borderBottom:'1px solid #eee', display:'flex', justifyContent:'space-between'}}>
-              <div>
-                <strong>Order #{order.id}</strong> <br/>
-                <span style={{fontSize:'0.85rem', color:'#666'}}>{new Date(order.created_at).toLocaleDateString()}</span>
-              </div>
-              <div style={{textAlign:'right'}}>
-                <span style={{padding:'4px 8px', borderRadius:'4px', background: getStatusColor(order.payment_status), fontWeight:'bold', fontSize:'0.85rem'}}>
-                  {order.payment_status.toUpperCase()}
-                </span> <br/>
-                <span style={{fontWeight:'bold', color:'var(--main-red)'}}>{formatRp(order.total_amount)}</span>
-              </div>
-            </div>
-
-            {/* List Item */}
-            <div style={{padding:'1rem'}}>
-              {order.items.map((item, idx) => (
-                <div key={idx} style={{display:'flex', alignItems:'center', marginBottom:'10px'}}>
-                  <div style={{width:'50px', height:'50px', background:'#eee', marginRight:'15px', borderRadius:'4px', overflow:'hidden'}}>
-                    {/* Karena kita belum simpan gambar di order_items, kita ambil dari join product. Kalau produk dihapus, gambar hilang (Kelemahan struktur simpel) */}
-                     <img src={item.image_url} alt="prod" style={{width:'100%', height:'100%', objectFit:'cover'}} /> 
+        <div>
+          {orders.map((order) => (
+            <div key={order.id} className="order-card">
+              
+              {/* HEADER KARTU */}
+              <div className="order-header">
+                <div>
+                  <div className="text-main" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    Order #{order.id}
                   </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:'bold'}}>{item.name || `Produk ID ${item.product_id}`}</div>
-                    <div style={{fontSize:'0.9rem', color:'#666'}}>{item.quantity} x {formatRp(item.price_at_purchase)}</div>
+                  <div className="text-muted" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+                    {new Date(order.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'
+                    })}
                   </div>
                 </div>
-              ))}
+                
+                <div style={{ textAlign: 'right' }}>
+                  <span className="status-badge" style={getStatusStyle(order.status)}>
+                    {order.status}
+                  </span>
+                  <div style={{ fontWeight: 'bold', color: 'var(--main-red)', marginTop: '8px' }}>
+                    {formatRp(order.total_amount)}
+                  </div>
+                </div>
+              </div>
+
+              {/* ISI ITEM */}
+              <div className="order-body">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="order-item">
+                    <div className="item-image">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '0.8rem' }}>No Img</div>
+                      )}
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <div className="text-main" style={{ fontWeight: '600' }}>
+                        {item.name || `Produk ID ${item.product_id}`}
+                      </div>
+                      <div className="text-muted" style={{ fontSize: '0.9rem', marginTop: '4px' }}>
+                        {item.quantity} x {formatRp(item.price_at_purchase)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* FOOTER (ALAMAT) */}
+              <div className="order-footer">
+                <span style={{ marginRight: '5px' }}>📍 Dikirim ke:</span> 
+                <span className="text-main">{order.shipping_address || '-'}</span>
+              </div>
+
             </div>
-            
-            <div style={{padding:'0.5rem 1rem', borderTop:'1px solid #eee', fontSize:'0.9rem', color:'#555'}}>
-                Dikirim ke: {order.shipping_address}
-            </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   );

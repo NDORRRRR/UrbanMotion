@@ -1,73 +1,183 @@
-// src/pages/ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import '../App.css'; 
 
-function ProfilePage() {
+const ProfilePage = () => {
+  const { user, login, logout } = useAuth(); 
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
-    username: '', email: '', full_name: '', phone: '', address: ''
+    username: '',
+    email: '',
+    phone: ''
   });
-  const [loading, setLoading] = useState(true);
 
+  // Isi form saat user data tersedia
   useEffect(() => {
-    api.get('/users/profile')
-      .then(res => {
-        // Isi form dengan data yang ada, atau string kosong jika null
-        setFormData({
-          ...res.data,
-          full_name: res.data.full_name || '',
-          phone: res.data.phone || '',
-          address: res.data.address || ''
-        });
-        setLoading(false);
-      })
-      .catch(err => alert('Gagal ambil profil'));
-  }, []);
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [user]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
     try {
-      await api.put('/users/profile', formData);
-      alert('Profil berhasil disimpan!');
-    } catch (error) {
-      alert('Gagal update profil.');
+      // Panggil API update yang baru kita buat
+      const res = await api.put('/users/profile', formData);
+      
+      // Update state user global di AuthContext tanpa logout
+      // Asumsinya fungsi 'login' di context menerima (user, token). 
+      // Kita pakai token lama dari localStorage.
+      const currentToken = localStorage.getItem('token');
+      login(res.data.user, currentToken);
+      
+      alert('Profil berhasil diperbarui!');
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert('Gagal memperbarui profil: ' + (err.response?.data?.message || 'Error server'));
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p style={{textAlign:'center', marginTop:'2rem'}}>Loading...</p>;
+  if (!user) return <div style={{textAlign:'center', marginTop:'50px'}}>Silakan login.</div>;
 
   return (
-    <div className="form-container" style={{maxWidth:'600px', marginTop:'2rem'}}>
-      <h2 style={{textAlign:'center', color:'var(--main-dark)'}}>Pengaturan Profil</h2>
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-            <label>Username</label>
-            <input type="text" value={formData.username} disabled style={{backgroundColor:'#eee'}} />
-        </div>
-        <div className="form-group">
-            <label>Email</label>
-            <input type="email" value={formData.email} disabled style={{backgroundColor:'#eee'}} />
+    <div style={{ padding: '3rem 1.5rem', minHeight: '80vh' }}>
+      <div className="profile-card">
+        
+        {/* Avatar */}
+        <div className="profile-avatar-large">
+          {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
         </div>
         
-        <hr style={{margin:'20px 0', borderTop:'1px solid #ddd'}}/>
-        
-        <div className="form-group">
-            <label>Nama Lengkap (Penerima)</label>
-            <input type="text" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} placeholder="Nama sesuai KTP/Penerima Paket"/>
-        </div>
-        <div className="form-group">
-            <label>Nomor HP</label>
-            <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="08xxxxxxxx"/>
-        </div>
-        <div className="form-group">
-            <label>Alamat Lengkap</label>
-            <textarea rows="3" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..."></textarea>
+        {/* Jika sedang edit, tampilkan input Judul, jika tidak tampilkan Teks */}
+        {isEditing ? (
+             <div style={{marginBottom: '1rem'}}>
+                <label className="profile-label">Username</label>
+                <input 
+                  type="text" 
+                  name="username" 
+                  value={formData.username} 
+                  onChange={handleChange}
+                  className="edit-input"
+                />
+             </div>
+        ) : (
+             <h2 style={{ marginBottom: '0.5rem', color: 'var(--text-color)' }}>
+               {user.username}
+             </h2>
+        )}
+
+        <div className="profile-role-badge">
+          {user.role || 'Member'}
         </div>
 
-        <button className="btn-primary" style={{width:'100%'}}>Simpan Perubahan</button>
-      </form>
+        <div style={{ marginTop: '2rem', textAlign: 'left' }}>
+          
+          {/* EMAIL FIELD */}
+          <div className="profile-info-group">
+            <span className="profile-label">Email</span>
+            {isEditing ? (
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={handleChange}
+                className="edit-input"
+              />
+            ) : (
+              <span className="profile-value">{user.email || '-'}</span>
+            )}
+          </div>
+
+          {/* PHONE FIELD */}
+          <div className="profile-info-group">
+            <span className="profile-label">Nomor Telepon</span>
+            {isEditing ? (
+              <input 
+                type="text" 
+                name="phone" 
+                value={formData.phone} 
+                onChange={handleChange}
+                className="edit-input"
+                placeholder="08xxxxxxxx"
+              />
+            ) : (
+              <span className="profile-value">{user.phone || '-'}</span>
+            )}
+          </div>
+
+          {/* JOIN DATE (Tidak bisa diedit) */}
+          <div className="profile-info-group">
+            <span className="profile-label">Bergabung Sejak</span>
+            <span className="profile-value">
+              {user.created_at 
+                ? new Date(user.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })
+                : '-'}
+            </span>
+          </div>
+        </div>
+
+        {/* BUTTON ACTIONS */}
+        <div className="action-buttons">
+          {isEditing ? (
+            <>
+              <button 
+                className="btn-secondary" 
+                onClick={() => setIsEditing(false)}
+                disabled={loading}
+                style={{borderColor: '#ef4444', color: '#ef4444'}}
+              >
+                Batal
+              </button>
+              <button 
+                className="btn-secondary" 
+                onClick={handleSave}
+                disabled={loading}
+                style={{backgroundColor: 'var(--main-red)', color: 'white', borderColor: 'var(--main-red)'}}
+              >
+                {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn-secondary" onClick={() => setIsEditing(true)}>
+                ✏️ Edit Profil
+              </button>
+              <button 
+                onClick={() => { logout(); navigate('/login'); }}
+                style={{
+                  backgroundColor: '#fee2e2',
+                  color: '#ef4444',
+                  border: 'none',
+                  padding: '0.6rem 1.5rem',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                🚪 Logout
+              </button>
+            </>
+          )}
+        </div>
+
+      </div>
     </div>
   );
-}
+};
 
 export default ProfilePage;
