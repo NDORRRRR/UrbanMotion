@@ -48,6 +48,14 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
           <Route path="/dashboard" element={<SellerDashboard />} />
+          <Route
+            path="/dashboard/seller"
+            element={
+              <ProtectedRoute>
+                <SellerDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/sell" element={<AddProductPage />} />
           <Route path="/forum" element={<ForumPage />} />
@@ -58,6 +66,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/orders" element={<OrderHistoryPage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
+          
         </Routes>
       </div>
 
