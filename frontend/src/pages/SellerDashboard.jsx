@@ -98,16 +98,19 @@ function SellerDashboard() {
 
   // Handle Delete Product
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
+  if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
 
-    try {
-      await api.delete(`/dashboard/products/${id}`);
-      toast.success('Produk berhasil dihapus!');
-      fetchDashboardData();
-    } catch (error) {
-      toast.error('Gagal menghapus produk');
-    }
-  };
+  try {
+    await api.delete(`/dashboard/products/${id}`);
+    toast.success('Produk berhasil dihapus!');
+    fetchDashboardData(); // Refresh data
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    
+    const errorMessage = error.response?.data?.message || 'Gagal menghapus produk';
+    toast.error(errorMessage);
+  }
+};
 
   // Handle Update Order Status
   const handleUpdateOrderStatus = async (orderId, newStatus) => {

@@ -152,32 +152,19 @@ exports.updateProduct = async (req, res) => {
 
 // ===== 🆕 DELETE PRODUCT =====
 exports.deleteProduct = async (req, res) => {
-    try {
-        const sellerId = req.user.id;
-        const productId = req.params.id;
+  try {
+    const sellerId = req.user.id;
+    const productId = req.params.id;
 
-        const [check] = await db.query(
-            'SELECT id FROM products WHERE id = ? AND seller_id = ?',
-            [productId, sellerId]
-        );
+    await db.query(
+      'UPDATE products SET is_deleted = TRUE WHERE id = ? AND seller_id = ?',
+      [productId, sellerId]
+    );
 
-        if (check.length === 0) {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-
-        await db.query('DELETE FROM products WHERE id = ?', [productId]);
-
-        res.json({ message: 'Product deleted successfully!' });
-
-    } catch (error) {
-      if (error.errno === 1451) {
-          return res.status(400).json({ 
-              message: 'Tidak dapat menghapus produk ini karena sudah ada dalam riwayat pesanan (transaksi).' 
-          });
-      }
-
-      console.error('Error deleting product:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.json({ message: 'Produk berhasil diarsipkan!' });
+  } catch (error) {
+    console.error('Error archiving product:', error);
+    res.status(500).json({ message: 'Gagal mengarsipkan produk' });
   }
 };
 

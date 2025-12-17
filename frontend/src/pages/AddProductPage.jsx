@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 function AddProductPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function AddProductPage() {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState([]);
   const [sizes, setSizes] = useState('');
+  const [condition, setCondition] = useState('New'); // Default value
 
   const handleImageChange = (e) => {
     if (e.target.files) {
@@ -29,96 +31,118 @@ function AddProductPage() {
     formData.append('price', price);
     formData.append('description', description);
     formData.append('sizes', sizes);
+    formData.append('condition_status', condition);
+
+    formData.append('category', 'Sneakers'); 
+    formData.append('stock', 1);
     
     image.forEach((file) => {
         formData.append('images', file);
     });
 
     try {
-      await api.post('/products', formData);
-      alert('Produk berhasil dijual!');
-      navigate('/');
+      await api.post('/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast.success('Produk berhasil dijual!');
+      navigate('/dashboard/seller');
     } catch (error) {
-      alert(error.response?.data?.message || 'Gagal upload produk.');
+      console.error("Upload Error:", error);
+      const msg = error.response?.data?.message || 'Gagal upload produk.';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-container" style={{ maxWidth: '600px', marginTop: '2rem' }}>
-      <h2 style={{ color: 'var(--main-red)', textAlign: 'center' }}>Jual Sepatu Baru</h2>
-      
-      <form onSubmit={handleSubmit}>
+    <div className="add-product-container" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+      <h2>Jual Produk Baru</h2>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        
         <div className="form-group">
-          <label>Nama Sepatu</label>
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
+          <label>Nama Produk</label>
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
             required 
-            placeholder="Nike Air Jordan 1 High"
+            placeholder="Contoh: Air Jordan 1 High"
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group">
+        <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+          <div className="form-group" style={{ flex: 1 }}>
             <label>Brand</label>
-            <input
-              type="text"
-              value={brand}
-              onChange={e => setBrand(e.target.value)}
-              required 
-              placeholder="Nike"
-            />
+            <select value={brand} onChange={e => setBrand(e.target.value)} required>
+                <option value="">Pilih Brand</option>
+                <option value="Nike">Nike</option>
+                <option value="Adidas">Adidas</option>
+                <option value="Jordan">Jordan</option>
+                <option value="Puma">Puma</option>
+                <option value="New Balance">New Balance</option>
+                <option value="Other">Other</option>
+            </select>
           </div>
-          <div className="form-group">
-            <label>Harga (Rp)</label>
-            <input
-              type="number"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
+          
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Harga (IDR)</label>
+            <input 
+              type="number" 
+              value={price} 
+              onChange={e => setPrice(e.target.value)} 
               required 
               placeholder="2500000"
             />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Pilihan Ukuran (Pisahkan dengan koma)</label>
-          <input 
-            type="text" 
-            value={sizes} 
-            onChange={e => setSizes(e.target.value)} 
-            required 
-            placeholder="Contoh: 39, 40, 41, 42, 43" 
-          />
+        <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+                <label>Kondisi</label>
+                <select value={condition} onChange={e => setCondition(e.target.value)}>
+                    <option value="New">Baru (New)</option>
+                    <option value="Used">Bekas (Used)</option>
+                </select>
+            </div>
+            
+            <div className="form-group" style={{ flex: 1 }}>
+                <label>Pilihan Ukuran (Pisahkan koma)</label>
+                <input 
+                    type="text" 
+                    value={sizes} 
+                    onChange={e => setSizes(e.target.value)} 
+                    required 
+                    placeholder="Contoh: 40, 41, 42" 
+                />
+            </div>
         </div>
 
         <div className="form-group">
-          <label>Deskripsi & Kondisi</label>
+          <label>Deskripsi</label>
           <textarea 
-            value={description}
+            value={description} 
             onChange={e => setDescription(e.target.value)} 
             rows="4"
+            required
           ></textarea>
         </div>
 
         <div className="form-group">
-          <label>Foto Produk (Maksimal 6)</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
+          <label>Foto Produk (Minimal 1, Maksimal 5)</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            multiple 
             onChange={handleImageChange} 
             required
           />
-          <small style={{color:'var(--text-muted)', display: 'block', marginTop: '5px'}}>
-            Tahan CTRL untuk memilih banyak foto sekaligus.
-          </small>
+          <small style={{color:'#666'}}>Tahan tombol CTRL untuk memilih banyak foto sekaligus.</small>
         </div>
 
-        <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%' }}>
+        <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', marginTop: '1rem' }}>
           {loading ? 'Mengupload...' : 'Jual Sekarang'}
         </button>
       </form>
