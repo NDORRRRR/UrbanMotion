@@ -1,29 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
-const auth = require('../middleware/authMiddleware');
+const auth = require('../middleware/authMiddleware'); // Pastikan ini import-nya bener
 
-// Middleware: Cek apakah user adalah seller/admin
-const verifySeller = (req, res, next) => {
-  if (req.user && (req.user.role === 'reseller' || req.user.role === 'admin')) {
-    next();
-  } else {
-    res.status(403).json({ message: 'Akses Ditolak! Harus Seller/Admin.' });
-  }
-};
-
-router.use(auth, verifySeller);
-
-// Stats
-router.get('/stats', dashboardController.getSellerStats);
-
-// Products Management
-router.get('/products', dashboardController.getSellerProducts);
-router.put('/products/:id', dashboardController.updateProduct);
-router.delete('/products/:id', dashboardController.deleteProduct);
-
-// Orders Management
-router.get('/orders', dashboardController.getSellerOrders);
-router.put('/orders/:id/status', dashboardController.updateOrderStatus);
+router.get('/stats', auth, dashboardController.getSellerStats);
+router.get('/products', auth, dashboardController.getSellerProducts); // Ini yang bikin 404 kalau hilang
+router.get('/orders', auth, dashboardController.getSellerOrders);
 
 module.exports = router;

@@ -46,7 +46,7 @@ function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-          <Route path="/seller" element={<SellerDashboard />} />
+          <Route path="/dashboard" element={<SellerDashboard />} />
 
           <Route path="/sell" element={<AddProductPage />} />
           <Route path="/forum" element={<ForumPage />} />

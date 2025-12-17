@@ -15,21 +15,23 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/admin/dashboard'); 
-        setStats(response.data);
-      } catch (err) {
-        console.error("Error fetching dashboard:", err);
-        setError("Gagal memuat data statistik. Cek koneksi backend."); 
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/admin/dashboard'); 
+      
+      console.log("Data dashboard:", response.data);
+      setStats(response.data);
+    } catch (err) {
+      console.error("Error fetching dashboard:", err);
+      setError("Gagal memuat data. " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchDashboardData();
-  }, []);
+  fetchDashboardData();
+}, []);
 
   // Format Rupiah Helper
   const formatRp = (num) => {

@@ -12,7 +12,6 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require('./routes/orderRoutes.js');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const sellerRoutes = require('./routes/sellerRoutes');
 
 const app = express();
 const PORT = 3001;
@@ -35,8 +34,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/seller', sellerRoutes);
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 app.listen(PORT, () => {
     console.log(`🚀 Server backend wonten ten http://localhost:${PORT}`);
