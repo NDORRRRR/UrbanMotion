@@ -221,6 +221,13 @@
   justify-content: center;
   font-weight: bold;
   font-size: 0.9rem;
+  overflow: hidden; /* Ensure image stays inside circle */
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .username-text {

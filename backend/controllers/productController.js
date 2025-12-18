@@ -4,7 +4,6 @@ exports.getAllProducts = async (req, res) => {
   try {
     const { search, brand, sort } = req.query;
 
-    // Query tanpa is_deleted dulu (untuk avoid error jika kolom belum ada)
     let query = `
       SELECT 
         p.*, 
@@ -19,10 +18,10 @@ exports.getAllProducts = async (req, res) => {
     let conditions = [];
     let params = [];
 
-    // Filter Search
+    // Filter Search (Name, Brand, or Description)
     if (search) {
-      conditions.push("(p.name LIKE ? OR p.description LIKE ?)");
-      params.push(`%${search}%`, `%${search}%`);
+      conditions.push("(p.name LIKE ? OR p.brand LIKE ? OR p.description LIKE ?)");
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     // Filter Brand
@@ -31,6 +30,9 @@ exports.getAllProducts = async (req, res) => {
       params.push(brand);
     }
 
+    // Non-deleted check (if you have soft delete, uncomment below)
+    // conditions.push("p.is_deleted = 0");
+
     if (conditions.length > 0) {
       query += " AND " + conditions.join(" AND ");
     }
@@ -38,21 +40,23 @@ exports.getAllProducts = async (req, res) => {
     query += " GROUP BY p.id";
 
     // Sorting
-    if (sort === 'lowest') {
+    if (sort === 'cheap') {
       query += " ORDER BY p.price ASC";
-    } else if (sort === 'highest') {
+    } else if (sort === 'expensive') {
       query += " ORDER BY p.price DESC";
-    } else {
+    } else if (sort === 'newest') {
       query += " ORDER BY p.created_at DESC";
+    } else {
+      query += " ORDER BY p.created_at DESC"; // Default
     }
 
     const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (error) {
     console.error('❌ Error getAllProducts:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Server Error',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -61,7 +65,7 @@ exports.createProduct = async (req, res) => {
   try {
     console.log('📦 Request Body:', req.body);
     console.log('📷 Files:', req.files?.length);
-    
+
     const sellerId = req.user.id;
     const { name, brand, price, description, stock, sizes, condition_status, category } = req.body;
     const files = req.files;
@@ -91,7 +95,7 @@ exports.createProduct = async (req, res) => {
       WHERE TABLE_SCHEMA = DATABASE() 
         AND TABLE_NAME = 'products'
     `);
-    
+
     const columnNames = columns.map(col => col.COLUMN_NAME);
     console.log('✅ Available columns:', columnNames);
 
@@ -142,22 +146,22 @@ exports.createProduct = async (req, res) => {
 
     // ✅ INSERT IMAGES
     for (const file of files) {
-      const imageUrl = `http://localhost:3001/uploads/${file.filename}`;
+      const imageUrl = file.path;
       await db.query(
         `INSERT INTO product_images (product_id, image_url) VALUES (?, ?)`,
         [productId, imageUrl]
       );
     }
 
-    res.status(201).json({ 
-      message: 'Produk berhasil dijual!', 
+    res.status(201).json({
+      message: 'Produk berhasil dijual!',
       productId,
       imageCount: files.length
     });
 
   } catch (error) {
     console.error('❌ Create Product Error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Gagal menyimpan produk',
       error: error.message,
       details: error.sqlMessage || 'Server error'
@@ -167,7 +171,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getProductById = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     console.log('🔍 Fetching product ID:', id);
 
@@ -176,7 +180,6 @@ exports.getProductById = async (req, res) => {
       SELECT 
         p.*, 
         u.username as seller_name, 
-        u.profile_picture as seller_image,
         GROUP_CONCAT(pi.image_url) as images
       FROM products p
       LEFT JOIN users u ON p.seller_id = u.id
@@ -184,7 +187,7 @@ exports.getProductById = async (req, res) => {
       WHERE p.id = ?
       GROUP BY p.id
     `;
-    
+
     console.log('📝 Query:', query);
     console.log('🔢 Param:', id);
 
@@ -197,7 +200,7 @@ exports.getProductById = async (req, res) => {
     }
 
     const product = rows[0];
-    
+
     // Parse images string to array
     product.images = product.images ? product.images.split(',') : [];
 
@@ -209,11 +212,76 @@ exports.getProductById = async (req, res) => {
     console.error('❌ Error getProductById:', error);
     console.error('❌ Error Code:', error.code);
     console.error('❌ SQL Message:', error.sqlMessage);
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       message: 'Server Error',
       error: error.message,
       sqlMessage: error.sqlMessage
     });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { name, price, description, stock, brand, condition_status, category } = req.body;
+  const sellerId = req.user.id;
+
+  try {
+    // 1. Cek kepemilikan produk
+    const [products] = await db.query('SELECT * FROM products WHERE id = ?', [id]);
+    if (products.length === 0) return res.status(404).json({ message: 'Produk tidak ditemukan' });
+
+    // Jika user bukan super admin (opsional) dan bukan pemilik produk
+    if (products[0].seller_id !== sellerId) {
+      return res.status(403).json({ message: 'Anda tidak berhak mengedit produk ini' });
+    }
+
+    // 2. Update Data
+    // Kita buat array update dinamis
+    let updates = [];
+    let values = [];
+
+    if (name) { updates.push('name = ?'); values.push(name); }
+    if (price) { updates.push('price = ?'); values.push(price); }
+    if (description) { updates.push('description = ?'); values.push(description); }
+    if (stock) { updates.push('stock = ?'); values.push(stock); }
+    if (brand) { updates.push('brand = ?'); values.push(brand); }
+    if (condition_status) { updates.push('condition_status = ?'); values.push(condition_status); }
+    if (category) { updates.push('category = ?'); values.push(category); }
+
+    if (updates.length > 0) {
+      values.push(id); // Untuk WHERE id = ?
+      const query = `UPDATE products SET ${updates.join(', ')} WHERE id = ?`;
+      await db.query(query, values);
+    }
+
+    res.json({ message: 'Produk berhasil diupdate' });
+
+  } catch (error) {
+    console.error('Update Product Error:', error);
+    res.status(500).json({ message: 'Gagal update produk' });
+  }
+};
+
+exports.deleteProduct = async (req, res) => {
+  const { id } = req.params;
+  const sellerId = req.user.id;
+
+  try {
+    const [products] = await db.query('SELECT * FROM products WHERE id = ?', [id]);
+    if (products.length === 0) return res.status(404).json({ message: 'Produk tidak ditemukan' });
+
+    if (products[0].seller_id !== sellerId) {
+      return res.status(403).json({ message: 'Anda tidak berhak menghapus produk ini' });
+    }
+
+    // Soft Delete
+    await db.query('UPDATE products SET is_deleted = 1 WHERE id = ?', [id]);
+
+    res.json({ message: 'Produk berhasil dihapus' });
+
+  } catch (error) {
+    console.error('Delete Product Error:', error);
+    res.status(500).json({ message: 'Gagal hapus produk' });
   }
 };

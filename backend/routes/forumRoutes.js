@@ -11,5 +11,6 @@ router.get('/:id', forumController.getThreadDetail);
 // Private: Harus Login buat posting/reply
 router.post('/', auth, uploadForum.array('images', 5), forumController.createThread);
 router.post('/:id/reply', auth, forumController.createReply);
+router.delete('/:id', auth, forumController.deleteThread); // Route Hapus
 
 module.exports = router;

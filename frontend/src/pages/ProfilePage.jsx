@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import '../App.css'; 
+import '../App.css';
 
 const ProfilePage = () => {
   // ========== STATE & HOOKS ==========
-  const { user, login, logout } = useAuth(); 
+  const { user, login, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const [isEditing, setIsEditing] = useState(false); // Toggle mode edit
   const [loading, setLoading] = useState(false); // Loading state saat save
-  
+
   // Form data untuk edit profil
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    phone: ''
+    phone: '',
+    profile_picture: null
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // ========== EFFECTS ==========
   // Isi form saat user data tersedia
@@ -28,27 +31,52 @@ const ProfilePage = () => {
         email: user.email || '',
         phone: user.phone || ''
       });
+      // Jika user punya profile picture dari DB, set ke preview
+      if (user.profile_picture) {
+        setImagePreview(user.profile_picture);
+      }
     }
   }, [user]);
 
   const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   // Handle save profile
   const handleSave = async () => {
     setLoading(true);
     try {
+      // Gunakan FormData untuk upload file
+      const data = new FormData();
+      data.append('username', formData.username);
+      data.append('email', formData.email);
+      data.append('phone', formData.phone);
+      if (selectedFile) {
+        data.append('profile_picture', selectedFile);
+      }
+
       // Kirim data ke backend API
-      const res = await api.put('/users/profile', formData);
-      
+      const res = await api.put('/users/profile', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       // Update state user global di AuthContext
       const currentToken = localStorage.getItem('token');
       login(res.data.user, currentToken);
-      
+
       alert('Profil berhasil diperbarui!');
       setIsEditing(false); // Keluar dari mode edit
     } catch (err) {
@@ -61,7 +89,7 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-      <div style={{textAlign:'center', marginTop:'50px', color:'var(--text-color)'}}>
+      <div style={{ textAlign: 'center', marginTop: '50px', color: 'var(--text-color)' }}>
         Silakan login terlebih dahulu.
       </div>
     );
@@ -71,21 +99,41 @@ const ProfilePage = () => {
   return (
     <div style={{ padding: '3rem 1.5rem', minHeight: '80vh' }}>
       <div className="profile-card">
-        
+
         {/* ===== AVATAR SECTION ===== */}
         <div className="profile-avatar-large">
-          {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Profile"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            />
+          ) : (
+            user.username ? user.username.charAt(0).toUpperCase() : 'U'
+          )}
         </div>
-        
+
+        {/* Upload Input saat Mode Edit */}
+        {isEditing && (
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ marginBottom: '1rem' }}
+            />
+          </div>
+        )}
+
         {/* ===== USERNAME SECTION (Editable/Read-only) ===== */}
         {isEditing ? (
           // Mode Edit: Tampilkan Input
-          <div style={{marginBottom: '1rem'}}>
+          <div style={{ marginBottom: '1rem' }}>
             <label className="profile-label">Username</label>
-            <input 
-              type="text" 
-              name="username" 
-              value={formData.username} 
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
               className="edit-input"
               placeholder="Username Anda"
@@ -99,21 +147,21 @@ const ProfilePage = () => {
 
         {/* ===== ROLE BADGE ===== */}
         <div className="profile-role-badge">
-          {user.role === 'admin' ? 'Administrator' : 
-           user.role === 'reseller' ? 'Seller' : 'Member'}
+          {user.role === 'admin' ? 'Administrator' :
+            user.role === 'reseller' ? 'Seller' : 'Member'}
         </div>
 
         {/* ===== DETAIL INFORMATION SECTION ===== */}
         <div style={{ marginTop: '2rem', textAlign: 'left' }}>
-          
+
           {/* --- EMAIL FIELD --- */}
           <div className="profile-info-group">
             <span className="profile-label">Email</span>
             {isEditing ? (
-              <input 
-                type="email" 
-                name="email" 
-                value={formData.email} 
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 className="edit-input"
                 placeholder="email@example.com"
@@ -127,10 +175,10 @@ const ProfilePage = () => {
           <div className="profile-info-group">
             <span className="profile-label">Nomor Telepon</span>
             {isEditing ? (
-              <input 
-                type="text" 
-                name="phone" 
-                value={formData.phone} 
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
                 onChange={handleChange}
                 className="edit-input"
                 placeholder="08xxxxxxxxxx"
@@ -144,12 +192,12 @@ const ProfilePage = () => {
           <div className="profile-info-group">
             <span className="profile-label">Bergabung Sejak</span>
             <span className="profile-value">
-              {user.created_at 
-                ? new Date(user.created_at).toLocaleDateString('id-ID', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })
+              {user.created_at
+                ? new Date(user.created_at).toLocaleDateString('id-ID', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })
                 : '-'}
             </span>
           </div>
@@ -161,8 +209,8 @@ const ProfilePage = () => {
             // --- EDIT MODE BUTTONS ---
             <>
               {/* Button Batal */}
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={() => {
                   setIsEditing(false);
                   // Reset form ke data asli
@@ -173,19 +221,19 @@ const ProfilePage = () => {
                   });
                 }}
                 disabled={loading}
-                style={{borderColor: '#ef4444', color: '#ef4444'}}
+                style={{ borderColor: '#ef4444', color: '#ef4444' }}
               >
                 Batal
               </button>
 
               {/* Button Simpan */}
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={handleSave}
                 disabled={loading}
                 style={{
-                  backgroundColor: 'var(--main-red)', 
-                  color: 'white', 
+                  backgroundColor: 'var(--main-red)',
+                  color: 'white',
                   borderColor: 'var(--main-red)'
                 }}
               >
@@ -196,16 +244,16 @@ const ProfilePage = () => {
             // --- VIEW MODE BUTTONS ---
             <>
               {/* Button Edit Profil */}
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={() => setIsEditing(true)}
               >
                 ✏️ Edit Profil
               </button>
 
               {/* Button Logout */}
-              <button 
-                onClick={() => { 
+              <button
+                onClick={() => {
                   logout(); // Hapus token & user dari context
                   navigate('/login'); // ✅ FIX: Sekarang navigate bisa jalan!
                 }}

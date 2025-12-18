@@ -18,6 +18,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import ProfilePage from './pages/ProfilePage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import HelpPage from './pages/HelpPage';
 // import Dashboard from './pages/SellerDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,7 +37,7 @@ function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
+
       <Navbar theme={theme} toggleTheme={toggleTheme} />
 
       <div style={{ flex: 1 }}>
@@ -66,7 +67,13 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/orders" element={<OrderHistoryPage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
-          
+
+          {/* Help Routes */}
+          <Route path="/faq" element={<HelpPage />} />
+          <Route path="/shipping" element={<HelpPage />} />
+          <Route path="/returns" element={<HelpPage />} />
+          <Route path="/contact" element={<HelpPage />} />
+
         </Routes>
       </div>
 

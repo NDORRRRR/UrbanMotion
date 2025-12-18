@@ -16,5 +16,7 @@ const verifySeller = (req, res, next) => {
 router.get('/', productController.getAllProducts);
 router.get('/:id', productController.getProductById);
 router.post('/', auth, verifySeller, uploadProduct.array('images', 6), validateProduct, productController.createProduct);
+router.put('/:id', auth, verifySeller, productController.updateProduct);
+router.delete('/:id', auth, verifySeller, productController.deleteProduct);
 
 module.exports = router;

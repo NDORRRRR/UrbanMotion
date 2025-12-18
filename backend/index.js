@@ -12,6 +12,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require('./routes/orderRoutes.js');
+const paymentRoutes = require('./routes/paymentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const configRoutes = require('./routes/configRoutes');
@@ -47,7 +48,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.get('/', (req, res) => {
-    res.send('<h1>Backend sampun aktif</h1>');
+  res.send('<h1>Backend sampun aktif</h1>');
 });
 
 app.use('/api/auth', authRoutes);
@@ -59,10 +60,22 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/config', configRoutes);
 
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Global Error Handler:', err);
+  res.status(500).json({
+    message: 'Internal Server Error',
+    error: err.message,
+    details: err
+  });
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Server backend wonten ten http://localhost:${PORT}`);
+  console.log(`🚀 Server backend wonten ten http://localhost:${PORT}`);
 });

@@ -8,7 +8,7 @@ function Navbar({ theme, toggleTheme }) {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef(null);
@@ -44,7 +44,7 @@ function Navbar({ theme, toggleTheme }) {
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="nav-container">
-        
+
         {/* === SECTION KIRI: LOGO === */}
         <Link to="/" className="nav-brand">
           <img src={logoUrban} alt="Urban Motion" className="brand-logo" />
@@ -59,8 +59,8 @@ function Navbar({ theme, toggleTheme }) {
 
           {/* --- PERBAIKAN: Dashboard Kembali ke Sini --- */}
           {isSeller && (
-            <Link 
-              to="/dashboard" 
+            <Link
+              to="/dashboard"
               className={`nav-item ${isActive('/dashboard')}`}
               style={{ color: 'var(--primary-color)', fontWeight: 'bold' }} // Sedikit dibedakan warnanya
             >
@@ -71,7 +71,7 @@ function Navbar({ theme, toggleTheme }) {
 
         {/* === SECTION KANAN: ACTIONS === */}
         <div className="nav-right">
-          
+
           {/* Tombol Jual Khusus Seller/Admin */}
           {isSeller && (
             <Link to="/sell" className="btn-sell" style={{ marginRight: '10px' }}>
@@ -97,12 +97,16 @@ function Navbar({ theme, toggleTheme }) {
 
               {/* Profile Dropdown */}
               <div className="profile-wrapper" ref={dropdownRef}>
-                <div 
+                <div
                   className={`profile-trigger ${isProfileOpen ? 'active' : ''}`}
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                 >
                   <div className="avatar-circle">
-                    {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
+                    {user?.profile_picture ? (
+                      <img src={user.profile_picture} alt={user.username} className="avatar-img" />
+                    ) : (
+                      user?.username ? user.username.charAt(0).toUpperCase() : 'A'
+                    )}
                   </div>
                   <span className="username-text">{user?.username}</span>
                   <span className="arrow-icon">▼</span>
@@ -114,7 +118,7 @@ function Navbar({ theme, toggleTheme }) {
                     <p className="user-name-bold">{user?.username}</p>
                     <span className="user-role-badge">{user?.role || 'User'}</span>
                   </div>
-                  
+
                   {/* Menu Dashboard juga bisa ditaruh di dropdown sebagai cadangan */}
                   {isSeller && (
                     <Link to="/dashboard" className="dropdown-link" onClick={() => setIsProfileOpen(false)}>
@@ -125,9 +129,9 @@ function Navbar({ theme, toggleTheme }) {
                   <Link to="/profile" className="dropdown-link" onClick={() => setIsProfileOpen(false)}>
                     👤 Edit Profil
                   </Link>
-                  
+
                   <div className="dropdown-divider"></div>
-                  
+
                   <button onClick={handleLogout} className="dropdown-link logout">
                     🚪 Logout
                   </button>

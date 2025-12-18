@@ -3,8 +3,8 @@ const db = require('../config/db');
 exports.submitLegitCheck = async (req, res) => {
   try {
     const { sneaker_name } = req.body;
-    const userId = req.user.id; 
-    const files = req.files; 
+    const userId = req.user.id;
+    const files = req.files;
 
     if (!sneaker_name) {
       return res.status(400).json({ message: 'Nama sepatu wajib diisi!' });
@@ -22,16 +22,16 @@ exports.submitLegitCheck = async (req, res) => {
     const legitCheckId = result.insertId;
 
     for (const file of files) {
-      const imageUrl = `http://localhost:3001/uploads/${file.filename}`;
+      const imageUrl = file.path; // Use Cloudinary URL
       await db.query(
         `INSERT INTO legit_check_images (legit_check_id, image_url) VALUES (?, ?)`,
         [legitCheckId, imageUrl]
       );
     }
 
-    res.status(201).json({ 
-      message: 'Legit Check berhasil disubmit!', 
-      legitCheckId: legitCheckId 
+    res.status(201).json({
+      message: 'Legit Check berhasil disubmit!',
+      legitCheckId: legitCheckId
     });
 
   } catch (error) {
@@ -54,12 +54,12 @@ exports.getMyHistory = async (req, res) => {
       GROUP BY lc.id
       ORDER BY lc.created_at DESC
     `;
-    
+
     const [rows] = await db.query(query, [userId]);
 
     const data = rows.map(item => ({
-        ...item,
-        images: item.images ? item.images.split(',') : []
+      ...item,
+      images: item.images ? item.images.split(',') : []
     }));
 
     res.json(data);

@@ -7,7 +7,8 @@ function CreateThreadPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('discussion');
-  const [images, setImages] = useState([]); 
+  const [contactNumber, setContactNumber] = useState(''); // State untuk No WA
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
 
   const handleImageChange = (e) => {
@@ -17,14 +18,19 @@ function CreateThreadPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
     formData.append('category', category);
-    
+
+    // Kirim no WA jika kategori jual beli dan ada isinya
+    if (category === 'marketplace' && contactNumber) {
+      formData.append('contact_number', contactNumber);
+    }
+
     images.forEach((file) => {
-      formData.append('images', file); 
+      formData.append('images', file);
     });
 
     try {
@@ -37,8 +43,8 @@ function CreateThreadPage() {
   };
 
   return (
-    <div className="form-container" style={{marginTop:'2rem'}}>
-      <h2 style={{textAlign:'center', marginBottom:'1.5rem'}}>Buat Topik Baru</h2>
+    <div className="form-container" style={{ marginTop: '2rem' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Buat Topik Baru</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Judul Topik</label>
@@ -46,33 +52,51 @@ function CreateThreadPage() {
         </div>
         <div className="form-group">
           <label>Kategori</label>
-          <select value={category} onChange={e => setCategory(e.target.value)} style={{width:'100%', padding:'10px'}}>
+          <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '10px' }}>
             <option value="discussion">Diskusi Umum</option>
             <option value="marketplace">Jual Beli (Second)</option>
           </select>
         </div>
 
+        {/* Input No WA (Hanya muncul jika Jual Beli) */}
+        {
+          category === 'marketplace' && (
+            <div className="form-group">
+              <label>Nomor WhatsApp (628...)</label>
+              <input
+                type="text"
+                placeholder="Contoh: 628123456789"
+                value={contactNumber}
+                onChange={e => setContactNumber(e.target.value)}
+                required
+                style={{ width: '95%', padding: '8px' }}
+              />
+              <small style={{ color: 'gray' }}>Nomor ini akan muncul di tombol "Hubungi Penjual"</small>
+            </div>
+          )
+        }
+
         <div className="form-group">
           <label>Isi Pesan</label>
-          <textarea rows="6" value={content} onChange={e => setContent(e.target.value)} required style={{width:'95%', padding:'10px'}}></textarea>
+          <textarea rows="6" value={content} onChange={e => setContent(e.target.value)} required style={{ width: '95%', padding: '10px' }}></textarea>
         </div>
-        
+
         <div className="form-group">
           <label>Gambar (Maksimal 5)</label>
-          <input 
-            type="file" 
-            multiple 
-            accept="image/*" 
-            onChange={handleImageChange} 
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageChange}
           />
           {images.length > 0 && (
-            <small style={{color:'green'}}>✅ {images.length} foto terpilih.</small>
+            <small style={{ color: 'green' }}>✅ {images.length} foto terpilih.</small>
           )}
         </div>
 
-        <button type="submit" className="btn-primary" style={{width:'100%'}}>Posting</button>
-      </form>
-    </div>
+        <button type="submit" className="btn-primary" style={{ width: '100%' }}>Posting</button>
+      </form >
+    </div >
   );
 }
 

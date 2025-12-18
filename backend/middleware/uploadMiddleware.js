@@ -1,25 +1,23 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'urban-motion-uploads', // Ubah nama folder jadi lebih general
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
+    format: async (req, file) => 'avif', // Paksa convert ke avif untuk optimasi
+    public_id: (req, file) => {
+      const name = file.originalname.split('.')[0];
+      return name + '-' + Date.now();
+    }
   }
 });
 
 const fileFilter = (req, file, cb) => {
   const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|avif|bmp)$/i;
-  
+
   const isImageMime = file.mimetype.startsWith('image/');
   const isExtValid = allowedExtensions.test(file.originalname);
 
@@ -30,7 +28,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
