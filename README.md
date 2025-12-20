@@ -2,7 +2,8 @@
 
 > Platform E-Commerce Sneakers Premium dengan Fitur Forum Sneakerhead dan Legit Check
 
-**Live Website:** [urbanmotion.web.id](https://urbanmotion.web.id)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-urbanmotion.web.id-ff4444?style=for-the-badge)](https://urbanmotion.web.id)
+[![Status](https://img.shields.io/badge/Status-Online-success?style=for-the-badge)](https://urbanmotion.web.id)
 
 ---
 
@@ -148,10 +149,20 @@ NODE_ENV=development
 
 Import database schema:
 ```bash
-mysql -u root -p urbanmotion < database/schema.sql
+mysql -u root -p urbanmotion < database/urban.sql
 ```
 
-Or manually create tables (refer to schema documentation).
+**Note:** `urban.sql` includes sample data. For production, truncate tables after import:
+```sql
+USE urbanmotion;
+TRUNCATE TABLE products;
+TRUNCATE TABLE product_images;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE carts;
+TRUNCATE TABLE forum_threads;
+TRUNCATE TABLE forum_replies;
+```
 
 ### 4. Frontend Setup
 
@@ -186,8 +197,6 @@ Access:
 
 ## 🚀 Deployment to Production
 
-### Update di Server (urbanmotion.web.id)
-
 #### Method 1: Git Pull (Recommended)
 
 ```bash
@@ -199,6 +208,9 @@ cd /path/to/UrbanMotion
 
 # Pull latest changes
 git pull origin main
+
+# Import/Update database
+mysql -u root -p urbanmotion < database/urban.sql
 
 # Update backend dependencies
 cd backend
@@ -361,7 +373,7 @@ This project is private and proprietary.
 
 ## 👥 Contributors
 
-- **Developer:** Adimas Indonesia
+- **Developer:** Adhim Musafak
 - **Website:** [urbanmotion.web.id](https://urbanmotion.web.id)
 
 ---
@@ -369,7 +381,7 @@ This project is private and proprietary.
 ## 📞 Support
 
 For issues or questions:
-- Email: support@urbanmotion.web.id
+- Email: adhimreko@gmail.com
 - Website: https://urbanmotion.web.id
 
 ---
@@ -386,4 +398,4 @@ For issues or questions:
 
 ---
 
-**Made with ❤️ for Sneakerheads**
+**URBANTEAM**
