@@ -56,9 +56,7 @@ exports.confirmOrderItem = async (req, res) => {
       [id]
     );
 
-    // Cek apakah SEMUA item dalam order ini sudah delivered
-    // Ambil order_id dari item ini dulu (kita bisa query ulang atau ambil dari join sebelumnya jika diubah)
-    // Query ulang biar aman
+
     const [itemData] = await db.query('SELECT order_id FROM order_items WHERE id = ?', [id]);
     const orderId = itemData[0].order_id;
 
@@ -71,15 +69,46 @@ exports.confirmOrderItem = async (req, res) => {
 
     const { total, delivered_count } = items[0];
 
-    // Jika semua delivered, update order status jadi delivered
     if (Number(delivered_count) === Number(total)) {
-      await db.query(`UPDATE orders SET order_status = 'delivered' WHERE id = ?`, [orderId]);
+      await db.query(
+        `UPDATE orders SET order_status = 'delivered', payment_status = 'paid' WHERE id = ?`,
+        [orderId]
+      );
     }
 
     res.json({ message: 'Pesanan berhasil dikonfirmasi!' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Gagal konfirmasi pesanan.' });
+  }
+};
+
+// Confirm Payment (called after Midtrans success)
+exports.confirmPayment = async (req, res) => {
+  const { orderId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // Verify ownership
+    const [order] = await db.query(
+      'SELECT id FROM orders WHERE id = ? AND user_id = ?',
+      [orderId, userId]
+    );
+
+    if (order.length === 0) {
+      return res.status(404).json({ message: 'Order tidak ditemukan.' });
+    }
+
+    // Update payment status to paid
+    await db.query(
+      `UPDATE orders SET payment_status = 'paid', order_status = 'processing' WHERE id = ?`,
+      [orderId]
+    );
+
+    res.json({ message: 'Pembayaran berhasil dikonfirmasi!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Gagal konfirmasi pembayaran.' });
   }
 };
 
@@ -105,7 +134,7 @@ exports.cancelOrder = async (req, res) => {
 
     // 2. Update status order jadi cancelled
     await db.query(
-      `UPDATE orders SET order_status = 'cancelled', payment_status = 'cancel' WHERE id = ?`,
+      `UPDATE orders SET order_status = 'cancelled', payment_status = 'cancelled' WHERE id = ?`,
       [id]
     );
 

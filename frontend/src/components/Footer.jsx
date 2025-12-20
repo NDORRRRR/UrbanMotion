@@ -76,7 +76,7 @@ const Footer = () => {
       {/* Footer Bottom */}
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} Urban Motion. All rights reserved.</p>
-        <p>Made with 🔥 by Adhim & Team</p>
+        <p>@UrbanTeam</p>
       </div>
     </footer>
   );

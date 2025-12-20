@@ -83,8 +83,8 @@ function OrderHistoryPage() {
                     {formatRp(order.total_amount)}
                   </div>
 
-                  {/* Tombol Cancel Order (Hanya jika masih unpaid/pending) */}
-                  {(order.payment_status === 'pending' || order.order_status === 'new') && (
+                  {/* Tombol Cancel Order (Hanya jika masih unpaid/pending dan belum delivered) */}
+                  {(order.payment_status === 'pending' || order.order_status === 'new') && order.order_status !== 'delivered' && (
                     <button
                       onClick={async () => {
                         if (!window.confirm('Yakin ingin membatalkan order ini? Stok akan dikembalikan.')) return;

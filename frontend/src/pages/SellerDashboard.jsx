@@ -27,10 +27,17 @@ function SellerDashboard() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const formatRp = (num) => new Intl.NumberFormat('id-ID', { 
-    style: 'currency', 
-    currency: 'IDR', 
-    minimumFractionDigits: 0 
+  // Image Management States
+  const [productImages, setProductImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [imagesToAdd, setImagesToAdd] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  const formatRp = (num) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(num);
 
   // Fetch Data
@@ -70,7 +77,7 @@ function SellerDashboard() {
   };
 
   // Handle Edit Product
-  const handleEditProduct = (product) => {
+  const handleEditProduct = async (product) => {
     setEditingProduct({
       id: product.id,
       name: product.name,
@@ -81,36 +88,116 @@ function SellerDashboard() {
       sizes: product.sizes || ''
     });
     setShowEditModal(true);
+
+    // Fetch product images
+    await fetchProductImages(product.id);
   };
 
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
-    
+
+    // Validate final image count BEFORE saving
+    const remainingExisting = productImages.filter(img => !imagesToDelete.includes(img.id)).length;
+    const finalImageCount = remainingExisting + imagesToAdd.length;
+
+    if (finalImageCount < 1) {
+      toast.error('❌ Minimal 1 gambar diperlukan! Tambahkan gambar sebelum menyimpan.');
+      return;
+    }
+
     try {
+      // 1. Update product details
       await api.put(`/dashboard/products/${editingProduct.id}`, editingProduct);
+
+      // 2. Delete staged images
+      for (const imageId of imagesToDelete) {
+        await api.delete(`/dashboard/products/${editingProduct.id}/images/${imageId}`);
+      }
+
+      // 3. Upload new images
+      for (const imageFile of imagesToAdd) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        await api.post(`/dashboard/products/${editingProduct.id}/images`, formData);
+      }
+
       toast.success('Produk berhasil diupdate!');
       setShowEditModal(false);
+
+      // Reset image states
+      setProductImages([]);
+      setImagesToDelete([]);
+      setImagesToAdd([]);
+
       fetchDashboardData();
     } catch (error) {
-      toast.error('Gagal update produk');
+      toast.error(error.response?.data?.message || 'Gagal update produk');
     }
   };
 
   // Handle Delete Product
   const handleDeleteProduct = async (id) => {
-  if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
+    if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
 
-  try {
-    await api.delete(`/dashboard/products/${id}`);
-    toast.success('Produk berhasil dihapus!');
-    fetchDashboardData(); // Refresh data
-  } catch (error) {
-    console.error('Error deleting product:', error);
-    
-    const errorMessage = error.response?.data?.message || 'Gagal menghapus produk';
-    toast.error(errorMessage);
-  }
-};
+    try {
+      await api.delete(`/dashboard/products/${id}`);
+      toast.success('Produk berhasil dihapus!');
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error deleting product:', error);
+
+      const errorMessage = error.response?.data?.message || 'Gagal menghapus produk';
+      toast.error(errorMessage);
+    }
+  };
+
+  // ===== IMAGE MANAGEMENT HANDLERS =====
+  const fetchProductImages = async (productId) => {
+    setLoadingImages(true);
+    try {
+      const res = await api.get(`/dashboard/products/${productId}/images`);
+      setProductImages(res.data);
+      setImagesToDelete([]);
+      setImagesToAdd([]);
+    } catch (error) {
+      toast.error('Gagal load gambar');
+      console.error(error);
+    } finally {
+      setLoadingImages(false);
+    }
+  };
+
+  const handleStageDeleteImage = (imageId) => {
+    setImagesToDelete([...imagesToDelete, imageId]);
+    toast.success('Gambar ditandai untuk dihapus (klik Save untuk apply)');
+  };
+
+  const handleStageAddImage = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (getActiveImages().length + files.length > 6) {
+      toast.error('Maksimal 6 gambar per produk');
+      return;
+    }
+
+    setImagesToAdd([...imagesToAdd, ...files]);
+    toast.success(`${files.length} gambar ditambahkan (klik Save untuk upload)`);
+    e.target.value = ''; // Reset input
+  };
+
+  const handleCancelImageDelete = (imageId) => {
+    setImagesToDelete(imagesToDelete.filter(id => id !== imageId));
+  };
+
+  const handleRemoveStagedImage = (index) => {
+    setImagesToAdd(imagesToAdd.filter((_, i) => i !== index));
+  };
+
+  // Get active images (excluding staged deletions)
+  const getActiveImages = () => {
+    const activeImages = productImages.filter(img => !imagesToDelete.includes(img.id));
+    return [...activeImages, ...imagesToAdd.map((_, i) => ({ id: `new-${i}`, staged: true }))];
+  };
 
   // Handle Update Order Status
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
@@ -131,7 +218,7 @@ function SellerDashboard() {
       delivered: { label: 'Selesai', className: 'status-delivered' },
       cancelled: { label: 'Dibatalkan', className: 'status-cancelled' }
     };
-    
+
     const config = statusConfig[status] || { label: status, className: '' };
     return <span className={`status-badge ${config.className}`}>{config.label}</span>;
   };
@@ -161,19 +248,19 @@ function SellerDashboard() {
 
       {/* Tabs */}
       <div className="dashboard-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           📊 Overview
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`}
           onClick={() => setActiveTab('products')}
         >
           📦 Produk Saya ({products.length})
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
@@ -243,7 +330,12 @@ function SellerDashboard() {
                 .slice(0, 5)
                 .map((product) => (
                   <div key={product.id} className="product-item">
-                    <img src={product.image_url} alt={product.name} />
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      loading="lazy"
+                      onError={(e) => e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'}
+                    />
                     <div className="product-info">
                       <p className="product-name">{product.name}</p>
                       <p className="product-sold">{product.total_sold || 0} terjual</p>
@@ -276,7 +368,12 @@ function SellerDashboard() {
                   <tr key={product.id}>
                     <td>
                       <div className="product-cell">
-                        <img src={product.image_url} alt={product.name} />
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          loading="lazy"
+                          onError={(e) => e.target.src = 'https://via.placeholder.com/100x100?text=No+Image'}
+                        />
                         <span>{product.name}</span>
                       </div>
                     </td>
@@ -290,15 +387,15 @@ function SellerDashboard() {
                     <td>{product.total_sold || 0} terjual</td>
                     <td>
                       <div className="action-btns">
-                        <button 
-                          className="btn-edit" 
+                        <button
+                          className="btn-edit"
                           onClick={() => handleEditProduct(product)}
                           title="Edit"
                         >
                           ✏️
                         </button>
-                        <button 
-                          className="btn-delete" 
+                        <button
+                          className="btn-delete"
                           onClick={() => handleDeleteProduct(product.id)}
                           title="Hapus"
                         >
@@ -349,13 +446,13 @@ function SellerDashboard() {
 
                 {order.order_status === 'new' && (
                   <div className="order-actions">
-                    <button 
+                    <button
                       className="btn-process"
                       onClick={() => handleUpdateOrderStatus(order.id, 'processing')}
                     >
                       ✅ Proses Pesanan
                     </button>
-                    <button 
+                    <button
                       className="btn-cancel"
                       onClick={() => handleUpdateOrderStatus(order.id, 'cancelled')}
                     >
@@ -366,7 +463,7 @@ function SellerDashboard() {
 
                 {order.order_status === 'processing' && (
                   <div className="order-actions">
-                    <button 
+                    <button
                       className="btn-ship"
                       onClick={() => handleUpdateOrderStatus(order.id, 'shipped')}
                     >
@@ -388,14 +485,14 @@ function SellerDashboard() {
               <h3>Edit Produk</h3>
               <button className="modal-close" onClick={() => setShowEditModal(false)}>✕</button>
             </div>
-            
+
             <form onSubmit={handleUpdateProduct}>
               <div className="form-group">
                 <label>Nama Produk</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={editingProduct.name}
-                  onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
                   required
                 />
               </div>
@@ -403,19 +500,19 @@ function SellerDashboard() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Brand</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={editingProduct.brand}
-                    onChange={(e) => setEditingProduct({...editingProduct, brand: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, brand: e.target.value })}
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Harga (Rp)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
                     required
                   />
                 </div>
@@ -424,30 +521,107 @@ function SellerDashboard() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Stok</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={editingProduct.stock}
-                    onChange={(e) => setEditingProduct({...editingProduct, stock: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })}
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Ukuran (pisah koma)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={editingProduct.sizes}
-                    onChange={(e) => setEditingProduct({...editingProduct, sizes: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, sizes: e.target.value })}
                     placeholder="39, 40, 41, 42"
                   />
                 </div>
               </div>
 
+              {/* IMAGE MANAGEMENT SECTION */}
+              <div className="form-group">
+                <label>Kelola Gambar Produk ({getActiveImages().length}/6)</label>
+
+                {loadingImages ? (
+                  <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    Loading gambar...
+                  </div>
+                ) : (
+                  <div className="image-gallery">
+                    {/* Existing Images */}
+                    {productImages.map(img => (
+                      <div
+                        key={img.id}
+                        className={`image-item ${imagesToDelete.includes(img.id) ? 'marked-delete' : ''}`}
+                      >
+                        <img src={img.image_url} alt="Product" />
+                        {imagesToDelete.includes(img.id) ? (
+                          <button
+                            type="button"
+                            className="btn-image-undo"
+                            onClick={() => handleCancelImageDelete(img.id)}
+                          >
+                            ↩️ Batal
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn-image-delete"
+                            onClick={() => handleStageDeleteImage(img.id)}
+                          >
+                            🗑️ Hapus
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Staged New Images Preview */}
+                    {imagesToAdd.map((file, index) => (
+                      <div key={`new-${index}`} className="image-item image-new">
+                        <img src={URL.createObjectURL(file)} alt="New" />
+                        <div className="image-badge">Baru</div>
+                        <button
+                          type="button"
+                          className="btn-image-delete"
+                          onClick={() => handleRemoveStagedImage(index)}
+                        >
+                          ❌ Batal
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Add Image Button */}
+                    {getActiveImages().length < 6 && (
+                      <div className="image-item image-upload">
+                        <input
+                          type="file"
+                          id="image-upload"
+                          accept="image/*"
+                          multiple
+                          onChange={handleStageAddImage}
+                          style={{ display: 'none' }}
+                        />
+                        <label htmlFor="image-upload" className="upload-label">
+                          <div>➕</div>
+                          <div style={{ fontSize: '0.8rem' }}>Tambah</div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <small style={{ color: 'var(--text-muted)', marginTop: '0.5rem', display: 'block' }}>
+                  💡 Perubahan gambar akan disimpan saat klik tombol "Simpan Perubahan"
+                </small>
+              </div>
+
               <div className="form-group">
                 <label>Deskripsi</label>
-                <textarea 
+                <textarea
                   rows="4"
                   value={editingProduct.description}
-                  onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
                 ></textarea>
               </div>
 
