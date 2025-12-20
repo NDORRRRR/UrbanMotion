@@ -106,7 +106,7 @@ UrbanMotion adalah platform e-commerce modern yang mengkhususkan diri dalam penj
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/UrbanMotion.git
+git clone https://github.com/NDORRRRR/UrbanMotion.git
 cd UrbanMotion
 ```
 
@@ -185,8 +185,6 @@ Access:
 ---
 
 ## 🚀 Deployment to Production
-
-### Update di Server (urbanmotion.web.id)
 
 #### Method 1: Git Pull (Recommended)
 
@@ -361,7 +359,7 @@ This project is private and proprietary.
 
 ## 👥 Contributors
 
-- **Developer:** Adimas Indonesia
+- **Developer:** Adhim Musafak
 - **Website:** [urbanmotion.web.id](https://urbanmotion.web.id)
 
 ---
@@ -369,7 +367,7 @@ This project is private and proprietary.
 ## 📞 Support
 
 For issues or questions:
-- Email: support@urbanmotion.web.id
+- Email: adhimreko@gmail.com
 - Website: https://urbanmotion.web.id
 
 ---
@@ -386,4 +384,4 @@ For issues or questions:
 
 ---
 
-**Made with ❤️ for Sneakerheads**
+**Kindly Regard UrbanTeam :)**
