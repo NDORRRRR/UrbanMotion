@@ -107,7 +107,7 @@ UrbanMotion adalah platform e-commerce modern yang mengkhususkan diri dalam penj
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/UrbanMotion.git
+git clone https://github.com/NDORRRRR/UrbanMotion.git
 cd UrbanMotion
 ```
 
@@ -398,4 +398,4 @@ For issues or questions:
 
 ---
 
-**URBANTEAM**
+**Made with ❤️ for Sneakerheads**
