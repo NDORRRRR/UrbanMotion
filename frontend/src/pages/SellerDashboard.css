@@ -34,7 +34,7 @@
 }
 
 .btn-add-product {
-  background: white;
+  background: var(--card-bg);
   color: var(--main-red);
   padding: 12px 24px;
   border-radius: 8px;
@@ -321,13 +321,13 @@
 }
 
 .in-stock {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
 }
 
 .out-of-stock {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .action-btns {
@@ -346,20 +346,22 @@
 }
 
 .btn-edit {
-  background: #fef3c7;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
 .btn-edit:hover {
-  background: #fde68a;
+  background: rgba(245, 158, 11, 0.25);
   transform: scale(1.1);
 }
 
 .btn-delete {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .btn-delete:hover {
-  background: #fecaca;
+  background: rgba(239, 68, 68, 0.25);
   transform: scale(1.1);
 }
 
@@ -408,28 +410,28 @@
 }
 
 .status-new {
-  background: #fef3c7;
-  color: #b45309;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
 .status-processing {
-  background: #dbeafe;
-  color: #1e40af;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
 }
 
 .status-shipped {
-  background: #e0e7ff;
-  color: #4338ca;
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
 }
 
 .status-delivered {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
 }
 
 .status-cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .order-body {

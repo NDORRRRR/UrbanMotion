@@ -33,8 +33,8 @@ const AdminLayout = () => {
                             key={item.path}
                             to={item.path}
                             className={`admin-nav-item ${item.exact
-                                    ? location.pathname === item.path ? 'active' : ''
-                                    : location.pathname.startsWith(item.path) && item.path !== '/admin' ? 'active' : ''
+                                ? location.pathname === item.path ? 'active' : ''
+                                : location.pathname.startsWith(item.path) && item.path !== '/admin' ? 'active' : ''
                                 }`}
                         >
                             <span className="nav-icon">{item.icon}</span>

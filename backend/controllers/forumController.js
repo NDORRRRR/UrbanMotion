@@ -113,6 +113,7 @@ exports.createReply = async (req, res) => {
 exports.deleteThread = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
+  const userRole = req.user.role; // Get user role
 
   try {
     // Cek dulu thread punya siapa
@@ -120,8 +121,8 @@ exports.deleteThread = async (req, res) => {
 
     if (threads.length === 0) return res.status(404).json({ message: 'Thread tidak ditemukan.' });
 
-    // Cek Ownership
-    if (threads[0].user_id !== userId) {
+    // Cek Ownership OR Admin privilege
+    if (threads[0].user_id !== userId && userRole !== 'admin') {
       return res.status(403).json({ message: 'Anda tidak berhak menghapus thread ini.' });
     }
 

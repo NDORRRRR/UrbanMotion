@@ -67,6 +67,17 @@ function Navbar({ theme, toggleTheme }) {
               Dashboard
             </Link>
           )}
+
+          {/* Admin Panel Button (Only for Admin Role) */}
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin"
+              className={`nav-item ${isActive('/admin') || location.pathname.startsWith('/admin') ? 'active' : ''}`}
+              style={{ color: '#ef4444', fontWeight: 'bold' }}
+            >
+              🔧 Admin
+            </Link>
+          )}
         </div>
 
         {/* === SECTION KANAN: ACTIONS === */}
