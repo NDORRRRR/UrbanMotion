@@ -36,7 +36,7 @@ function HomePage() {
         const response = await api.get('/products', {
           params: { search: searchTerm, brand: selectedBrand, sort: sortOrder }
         });
-        setProducts(response.data);
+        setProducts(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Gagal load produk:", error);
         toast.error("Gagal memuat produk");
@@ -56,7 +56,7 @@ function HomePage() {
         const response = await api.get('/products', {
           params: { search: searchTerm, brand: selectedBrand, sort: sortOrder }
         });
-        setProducts(response.data);
+        setProducts(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Gagal load produk:", error);
       } finally {
