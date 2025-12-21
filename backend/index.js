@@ -26,6 +26,12 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const configRoutes = require('./routes/configRoutes');
 
+// Admin Routes
+const adminUserRoutes = require('./routes/adminUserRoutes');
+const adminLegitCheckRoutes = require('./routes/adminLegitCheckRoutes');
+const adminProductRoutes = require('./routes/adminProductRoutes');
+const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
@@ -88,6 +94,11 @@ app.use('/api/payment', paymentLimiter, paymentRoutes); // Payment limiter
 // Other routes (covered by global apiLimiter)
 app.use('/api/legit-check', legitCheckRoutes);
 app.use('/api/admin', adminRoutes);
+// New Admin Panel Routes
+app.use('/api/admin/users', adminUserRoutes);
+app.use('/api/admin/legit-checks', adminLegitCheckRoutes);
+app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/admin/analytics', adminAnalyticsRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/cart', cartRoutes);
