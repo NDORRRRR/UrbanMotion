@@ -2,8 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
+// Load .env only in development (production uses systemd env vars)
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 require('./config/db.js');
-require('dotenv').config();
 
 // Security & Rate Limiting
 const { apiLimiter, authLimiter, paymentLimiter } = require('./middleware/rateLimiter');
@@ -24,9 +27,11 @@ const sellerRoutes = require('./routes/sellerRoutes');
 const configRoutes = require('./routes/configRoutes');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 5000;
 const corsOptions = {
-  origin: 'http://localhost:5173', // Frontend URL
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://urbanmotion.web.id', 'https://www.urbanmotion.web.id', 'https://api.urbanmotion.web.id']
+    : 'http://localhost:5173',
   credentials: true,
   optionsSuccessStatus: 200
 };
