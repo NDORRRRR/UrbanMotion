@@ -8,7 +8,6 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import LegitCheckPage from './pages/LegitCheckPage';
 import HistoryPage from './pages/HistoryPage';
-import AdminDashboard from './pages/AdminDashboard';
 import AddProductPage from './pages/AddProductPage';
 import ForumPage from './pages/ForumPage';
 import CreateThreadPage from './pages/CreateThreadPage';
@@ -19,9 +18,16 @@ import ProfilePage from './pages/ProfilePage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import HelpPage from './pages/HelpPage';
-// import Dashboard from './pages/SellerDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// Admin Pages
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminLegitChecks from './pages/AdminLegitChecks';
+import AdminProducts from './pages/AdminProducts';
+import AdminAnalytics from './pages/AdminAnalytics';
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -46,8 +52,16 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/legit-check" element={<LegitCheckPage />} />
           <Route path="/history" element={<HistoryPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+
+          {/* Admin Routes with Layout */}
+          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="legit-checks" element={<AdminLegitChecks />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+          </Route>
+
           <Route path="/dashboard" element={<SellerDashboard />} />
           <Route
             path="/dashboard/seller"
