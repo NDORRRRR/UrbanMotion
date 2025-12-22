@@ -47,7 +47,13 @@ function SellerDashboard() {
       return;
     }
 
-    if (user && user.role !== 'reseller' && user.role !== 'admin') {
+    // Redirect admin users to admin panel
+    if (user && user.role === 'admin') {
+      navigate('/admin');
+      return;
+    }
+
+    if (user && user.role !== 'seller' && user.role !== 'admin') {
       toast.error('Akses Ditolak! Anda bukan Seller.');
       navigate('/');
       return;

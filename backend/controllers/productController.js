@@ -1,8 +1,34 @@
 const db = require('../config/db');
 
-// Get All Products
 exports.getAllProducts = async (req, res) => {
     try {
+        // Get query params
+        const { search, brand, sort } = req.query;
+
+        // Build WHERE conditions
+        let whereConditions = ['p.is_deleted = FALSE'];
+        let queryParams = [];
+
+        // Search filter (name or brand)
+        if (search) {
+            whereConditions.push('(p.name LIKE ? OR p.brand LIKE ?)');
+            queryParams.push(`%${search}%`, `%${search}%`);
+        }
+
+        // Brand filter
+        if (brand && brand !== 'All') {
+            whereConditions.push('p.brand = ?');
+            queryParams.push(brand);
+        }
+
+        // Build ORDER BY clause
+        let orderBy = 'p.created_at DESC'; // Default: newest
+        if (sort === 'cheap') {
+            orderBy = 'p.price ASC';
+        } else if (sort === 'expensive') {
+            orderBy = 'p.price DESC';
+        }
+
         const query = `
       SELECT 
         p.*, 
@@ -11,11 +37,12 @@ exports.getAllProducts = async (req, res) => {
       FROM products p
       JOIN users u ON p.seller_id = u.id
       LEFT JOIN product_images pi ON p.id = pi.product_id
-      WHERE p.is_deleted = FALSE
+      WHERE ${whereConditions.join(' AND ')}
       GROUP BY p.id
-      ORDER BY p.created_at DESC
+      ORDER BY ${orderBy}
     `;
-        const [products] = await db.query(query);
+
+        const [products] = await db.query(query, queryParams);
 
         // Optimize Cloudinary URLs for faster loading
         const optimizedProducts = products.map(product => {

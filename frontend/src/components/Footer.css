@@ -164,3 +164,39 @@
         justify-content: space-between;
     }
 }
+
+/* === LIGHT THEME OVERRIDES === */
+[data-theme="light"] .footer-container {
+    background-color: #f3f4f6;
+    color: #111827;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .footer-description,
+[data-theme="light"] .footer-links a {
+    color: #6b7280;
+}
+
+[data-theme="light"] .footer-heading {
+    color: #111827;
+}
+
+[data-theme="light"] .footer-links a:hover {
+    color: var(--primary-color, #ef4444);
+}
+
+[data-theme="light"] .social-icon {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #111827;
+}
+
+[data-theme="light"] .newsletter-input {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.02);
+    color: #111827;
+}
+
+[data-theme="light"] .footer-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: #6b7280;
+}

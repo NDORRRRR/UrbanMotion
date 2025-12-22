@@ -6,10 +6,10 @@ const uploadProduct = require('../middleware/uploadMiddleware');
 const { validateProduct } = require('../middleware/validateInput');
 
 const verifySeller = (req, res, next) => {
-  if (req.user && (req.user.role === 'reseller' || req.user.role === 'admin')) {
+  if (req.user && (req.user.role === 'seller' || req.user.role === 'admin')) {
     next();
   } else {
-    res.status(403).json({ message: 'Akses Ditolak! Anda harus jadi Reseller.' });
+    res.status(403).json({ message: 'Akses Ditolak! Anda harus jadi Seller.' });
   }
 };
 

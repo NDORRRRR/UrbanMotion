@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -31,6 +31,10 @@ import AdminAnalytics from './pages/AdminAnalytics';
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const location = useLocation();
+
+  // Check if current route is admin panel
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -91,7 +95,8 @@ function App() {
         </Routes>
       </div>
 
-      <Footer />
+      {/* Only show Footer if NOT on admin routes */}
+      {!isAdminRoute && <Footer />}
     </div>
   );
 }

@@ -4,13 +4,11 @@ const auth = require('../middleware/authMiddleware');
 const adminOnly = require('../middleware/adminMiddleware');
 const adminUserController = require('../controllers/adminUserController');
 
-// All routes require authentication + admin role
 router.use(auth, adminOnly);
 
-// User management
-router.get('/users', adminUserController.getAllUsers);
-router.get('/users/stats', adminUserController.getUserStats);
-router.put('/users/:id/role', adminUserController.changeUserRole);
-router.put('/users/:id/ban', adminUserController.banUser);
+router.get('/', adminUserController.getAllUsers);
+router.get('/stats', adminUserController.getUserStats);
+router.put('/:id/role', adminUserController.changeUserRole);
+router.put('/:id/ban', adminUserController.banUser);
 
 module.exports = router;

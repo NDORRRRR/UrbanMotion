@@ -94,9 +94,9 @@ const AdminAnalytics = () => {
                 </div>
             </div>
 
-            <div style={{ marginTop: '32px', padding: '24px', background: 'white', borderRadius: '12px' }}>
+            <div className="admin-table-container" style={{ marginTop: '32px', padding: '24px' }}>
                 <h2>📊 More Analytics Coming Soon</h2>
-                <p style={{ color: '#64748b' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
                     Revenue charts, user growth graphs, and detailed reports will be added in future updates.
                 </p>
             </div>

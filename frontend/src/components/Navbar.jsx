@@ -19,7 +19,7 @@ function Navbar({ theme, toggleTheme }) {
     navigate('/login');
   };
 
-  const isSeller = user && (user.role === 'admin' || user.role === 'reseller');
+  const isSeller = user && (user.role === 'admin' || user.role === 'seller');
 
   useEffect(() => {
     const handleScroll = () => {

@@ -1,6 +1,6 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const db = require('../config/db');
-const bcrypt = require('bcryptjs'); 
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -61,11 +61,14 @@ exports.login = async (req, res) => {
         id: user.id,
         email: user.email,
         username: user.username,
-        role: user.role
+        role: user.role,
+        phone: user.phone,
+        profile_picture: user.profile_picture,
+        created_at: user.created_at
       }
     };
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); 
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
     res.json({
       message: 'Login sukses!',
