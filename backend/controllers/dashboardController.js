@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-// ===== API: /api/dashboard/stats =====
 exports.getSellerStats = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
@@ -56,7 +55,6 @@ exports.getSellerStats = async (req, res) => {
     }
 };
 
-// ===== API: /api/dashboard/products =====
 exports.getSellerProducts = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -97,7 +95,6 @@ exports.getSellerProducts = async (req, res) => {
     }
 };
 
-// ===== API: /api/dashboard/orders =====
 exports.getSellerOrders = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -134,7 +131,6 @@ exports.getSellerOrders = async (req, res) => {
     }
 };
 
-// ===== 🆕 UPDATE PRODUCT =====
 exports.updateProduct = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -166,7 +162,6 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
-// ===== 🆕 DELETE PRODUCT =====
 exports.deleteProduct = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -185,7 +180,6 @@ exports.deleteProduct = async (req, res) => {
     }
 };
 
-// ===== 🆕 UPDATE ORDER STATUS =====
 exports.updateOrderStatus = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -217,7 +211,6 @@ exports.updateOrderStatus = async (req, res) => {
     }
 };
 
-// ===== 🆕 GET PRODUCT IMAGES =====
 exports.getProductImages = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -247,7 +240,6 @@ exports.getProductImages = async (req, res) => {
     }
 };
 
-// ===== 🆕 ADD PRODUCT IMAGE =====
 exports.addProductImage = async (req, res) => {
     try {
         const sellerId = req.user.id;
@@ -298,7 +290,6 @@ exports.addProductImage = async (req, res) => {
     }
 };
 
-// ===== 🆕 DELETE PRODUCT IMAGE =====
 exports.deleteProductImage = async (req, res) => {
     try {
         const sellerId = req.user.id;

@@ -1,4 +1,3 @@
-// frontend/src/pages/SellerDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +12,6 @@ function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
 
-  // Data States
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -23,11 +21,9 @@ function SellerDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
 
-  // Edit Modal States
   const [editingProduct, setEditingProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Image Management States
   const [productImages, setProductImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [imagesToAdd, setImagesToAdd] = useState([]);
@@ -157,7 +153,6 @@ function SellerDashboard() {
     }
   };
 
-  // ===== IMAGE MANAGEMENT HANDLERS =====
   const fetchProductImages = async (productId) => {
     setLoadingImages(true);
     try {

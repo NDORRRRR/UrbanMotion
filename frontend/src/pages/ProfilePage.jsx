@@ -5,14 +5,12 @@ import api from '../services/api';
 import '../App.css';
 
 const ProfilePage = () => {
-  // ========== STATE & HOOKS ==========
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [isEditing, setIsEditing] = useState(false); // Toggle mode edit
-  const [loading, setLoading] = useState(false); // Loading state saat save
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Form data untuk edit profil
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -21,9 +19,6 @@ const ProfilePage = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
-  // ========== EFFECTS ==========
-  // Isi form saat user data tersedia
   useEffect(() => {
     if (user) {
       setFormData({
@@ -31,7 +26,6 @@ const ProfilePage = () => {
         email: user.email || '',
         phone: user.phone || ''
       });
-      // Jika user punya profile picture dari DB, set ke preview
       if (user.profile_picture) {
         setImagePreview(user.profile_picture);
       }
@@ -52,8 +46,6 @@ const ProfilePage = () => {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-
-  // Handle save profile
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -66,19 +58,17 @@ const ProfilePage = () => {
         data.append('profile_picture', selectedFile);
       }
 
-      // Kirim data ke backend API
       const res = await api.put('/users/profile', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Update state user global di AuthContext
       const currentToken = localStorage.getItem('token');
       login(res.data.user, currentToken);
 
       alert('Profil berhasil diperbarui!');
-      setIsEditing(false); // Keluar dari mode edit
+      setIsEditing(false);
     } catch (err) {
       console.error(err);
       alert('Gagal memperbarui profil: ' + (err.response?.data?.message || 'Error server'));
@@ -94,8 +84,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
-  // ========== MAIN RENDER ==========
   return (
     <div style={{ padding: '3rem 1.5rem', minHeight: '80vh' }}>
       <div className="profile-card">
