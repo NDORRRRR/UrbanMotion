@@ -5,9 +5,9 @@ const cloudinary = require('../config/cloudinary');
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'urban-motion-uploads', // Ubah nama folder jadi lebih general
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
-    format: async (req, file) => 'avif', // Paksa convert ke avif untuk optimasi
+    folder: 'urban-motion-uploads',
+    allowed_formats: ['jpg', 'png', 'webp', 'avif'],
+    format: async (req, file) => 'avif',
     public_id: (req, file) => {
       const name = file.originalname.split('.')[0];
       return name + '-' + Date.now();
@@ -32,7 +32,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // Batas ukuran file 5MB
+    fileSize: 5 * 1024 * 1024
   }
 });
 

@@ -49,7 +49,6 @@ const ProfilePage = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Gunakan FormData untuk upload file
       const data = new FormData();
       data.append('username', formData.username);
       data.append('email', formData.email);
@@ -113,9 +112,7 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {/* ===== USERNAME SECTION (Editable/Read-only) ===== */}
         {isEditing ? (
-          // Mode Edit: Tampilkan Input
           <div style={{ marginBottom: '1rem' }}>
             <label className="profile-label">Username</label>
             <input
@@ -133,16 +130,13 @@ const ProfilePage = () => {
           </h2>
         )}
 
-        {/* ===== ROLE BADGE ===== */}
         <div className="profile-role-badge">
           {user.role === 'admin' ? 'Administrator' :
             user.role === 'reseller' ? 'Seller' : 'Member'}
         </div>
 
-        {/* ===== DETAIL INFORMATION SECTION ===== */}
         <div style={{ marginTop: '2rem', textAlign: 'left' }}>
 
-          {/* --- EMAIL FIELD --- */}
           <div className="profile-info-group">
             <span className="profile-label">Email</span>
             {isEditing ? (
@@ -159,7 +153,6 @@ const ProfilePage = () => {
             )}
           </div>
 
-          {/* --- PHONE FIELD --- */}
           <div className="profile-info-group">
             <span className="profile-label">Nomor Telepon</span>
             {isEditing ? (
@@ -176,7 +169,6 @@ const ProfilePage = () => {
             )}
           </div>
 
-          {/* --- JOIN DATE (Read-only, tidak bisa diedit) --- */}
           <div className="profile-info-group">
             <span className="profile-label">Bergabung Sejak</span>
             <span className="profile-value">
@@ -191,17 +183,13 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* ===== ACTION BUTTONS SECTION ===== */}
         <div className="action-buttons">
           {isEditing ? (
-            // --- EDIT MODE BUTTONS ---
             <>
-              {/* Button Batal */}
               <button
                 className="btn-secondary"
                 onClick={() => {
                   setIsEditing(false);
-                  // Reset form ke data asli
                   setFormData({
                     username: user.username || '',
                     email: user.email || '',
@@ -229,7 +217,6 @@ const ProfilePage = () => {
               </button>
             </>
           ) : (
-            // --- VIEW MODE BUTTONS ---
             <>
               {/* Button Edit Profil */}
               <button
@@ -242,8 +229,8 @@ const ProfilePage = () => {
               {/* Button Logout */}
               <button
                 onClick={() => {
-                  logout(); // Hapus token & user dari context
-                  navigate('/login'); // ✅ FIX: Sekarang navigate bisa jalan!
+                  logout();
+                  navigate('/login');
                 }}
                 style={{
                   backgroundColor: '#fee2e2',

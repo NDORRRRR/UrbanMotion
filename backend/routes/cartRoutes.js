@@ -1,17 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const cartController = require('../controllers/cartController');
-const auth = require('../middleware/authMiddleware'); // Wajib Login
+const auth = require('../middleware/authMiddleware');
 
 router.use(auth);
 
-// GET /api/cart (Ambil isi keranjang)
-router.get('/', cartController.getCart);
+router.get('/', auth, cartController.getCart);
 
-// POST /api/cart (Tambah/Update item)
-router.post('/', cartController.updateCart);
+router.post('/', auth, cartController.addOrUpdateCartItem);
 
-// DELETE /api/cart/:productId (Hapus item)
-router.delete('/:productId', cartController.removeItem);
+router.delete('/:productId', auth, cartController.removeCartItem);
 
 module.exports = router;

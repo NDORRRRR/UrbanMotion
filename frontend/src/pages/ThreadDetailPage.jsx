@@ -5,12 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import './Forum.css';
 
 function ThreadDetailPage() {
-  const { id } = useParams(); // Ambil ID dari URL
+  const { id } = useParams();
   const { token } = useAuth();
   const [thread, setThread] = useState(null);
   const [replyContent, setReplyContent] = useState('');
 
-  // Ambil Data Thread + Komentar
+
   const fetchThread = async () => {
     try {
       const res = await api.get(`/forum/${id}`);
@@ -24,15 +24,15 @@ function ThreadDetailPage() {
     fetchThread();
   }, [id]);
 
-  // Kirim Komentar
+
   const handleReply = async (e) => {
     e.preventDefault();
     if (!token) return alert('Login dulu bos buat komen!');
 
     try {
       await api.post(`/forum/${id}/reply`, { content: replyContent });
-      setReplyContent(''); // Kosongkan form
-      fetchThread(); // Refresh data biar komentar baru muncul
+      setReplyContent('');
+      fetchThread();
     } catch (error) {
       alert('Gagal kirim komentar.');
     }

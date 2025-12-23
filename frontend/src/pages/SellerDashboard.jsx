@@ -36,14 +36,14 @@ function SellerDashboard() {
     maximumFractionDigits: 0
   }).format(num);
 
-  // Fetch Data
+
   useEffect(() => {
     if (!token) {
       navigate('/login');
       return;
     }
 
-    // Redirect admin users to admin panel
+
     if (user && user.role === 'admin') {
       navigate('/admin');
       return;
@@ -78,7 +78,7 @@ function SellerDashboard() {
     }
   };
 
-  // Handle Edit Product
+
   const handleEditProduct = async (product) => {
     setEditingProduct({
       id: product.id,
@@ -91,14 +91,14 @@ function SellerDashboard() {
     });
     setShowEditModal(true);
 
-    // Fetch product images
+
     await fetchProductImages(product.id);
   };
 
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
 
-    // Validate final image count BEFORE saving
+
     const remainingExisting = productImages.filter(img => !imagesToDelete.includes(img.id)).length;
     const finalImageCount = remainingExisting + imagesToAdd.length;
 
@@ -108,15 +108,15 @@ function SellerDashboard() {
     }
 
     try {
-      // 1. Update product details
+
       await api.put(`/dashboard/products/${editingProduct.id}`, editingProduct);
 
-      // 2. Delete staged images
+
       for (const imageId of imagesToDelete) {
         await api.delete(`/dashboard/products/${editingProduct.id}/images/${imageId}`);
       }
 
-      // 3. Upload new images
+
       for (const imageFile of imagesToAdd) {
         const formData = new FormData();
         formData.append('image', imageFile);
@@ -126,7 +126,7 @@ function SellerDashboard() {
       toast.success('Produk berhasil diupdate!');
       setShowEditModal(false);
 
-      // Reset image states
+
       setProductImages([]);
       setImagesToDelete([]);
       setImagesToAdd([]);
@@ -137,14 +137,14 @@ function SellerDashboard() {
     }
   };
 
-  // Handle Delete Product
+
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
 
     try {
       await api.delete(`/dashboard/products/${id}`);
       toast.success('Produk berhasil dihapus!');
-      fetchDashboardData(); // Refresh data
+      fetchDashboardData();
     } catch (error) {
       console.error('Error deleting product:', error);
 
@@ -183,7 +183,7 @@ function SellerDashboard() {
 
     setImagesToAdd([...imagesToAdd, ...files]);
     toast.success(`${files.length} gambar ditambahkan (klik Save untuk upload)`);
-    e.target.value = ''; // Reset input
+    e.target.value = '';
   };
 
   const handleCancelImageDelete = (imageId) => {
@@ -194,13 +194,13 @@ function SellerDashboard() {
     setImagesToAdd(imagesToAdd.filter((_, i) => i !== index));
   };
 
-  // Get active images (excluding staged deletions)
+
   const getActiveImages = () => {
     const activeImages = productImages.filter(img => !imagesToDelete.includes(img.id));
     return [...activeImages, ...imagesToAdd.map((_, i) => ({ id: `new-${i}`, staged: true }))];
   };
 
-  // Handle Update Order Status
+
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
       await api.put(`/dashboard/orders/${orderId}/status`, { status: newStatus });

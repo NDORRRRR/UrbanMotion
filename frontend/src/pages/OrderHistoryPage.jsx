@@ -18,22 +18,20 @@ function OrderHistoryPage() {
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
   const getStatusStyle = (status) => {
-    if (status === 'shipped') return { backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }; // Biru
-    if (status === 'delivered') return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }; // Hijau
+    if (status === 'shipped') return { backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' };
+    if (status === 'delivered') return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' };
 
-    if (status === 'paid' || status === 'settlement' || status === 'capture') return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }; // Hijau
-    if (status === 'pending') return { backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }; // Kuning
-    if (status === 'deny' || status === 'cancel' || status === 'expire' || status === 'failure') return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }; // Merah
-    return { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)' }; // Default
+    if (status === 'paid' || status === 'settlement' || status === 'capture') return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' };
+    if (status === 'pending') return { backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' };
+    if (status === 'deny' || status === 'cancel' || status === 'expire' || status === 'failure') return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' };
+    return { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)' };
   };
 
   const handleConfirm = async (itemId) => {
     if (!window.confirm('Apakah Anda yakin pesanan sudah diterima?')) return;
     try {
       await api.post(`/orders/item/${itemId}/confirm`);
-      // Refresh
-      const res = await api.get('/orders');
-      setOrders(res.data);
+      fetchOrders();
       alert('Terima kasih! Pesanan selesai.');
     } catch (error) {
       alert('Gagal konfirmasi.');

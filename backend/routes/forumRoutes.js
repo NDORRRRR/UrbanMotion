@@ -4,13 +4,11 @@ const forumController = require('../controllers/forumController');
 const auth = require('../middleware/authMiddleware');
 const uploadForum = require('../middleware/uploadMiddleware');
 
-// Public: Lihat list thread & detail
 router.get('/', forumController.getAllThreads);
-router.get('/:id', forumController.getThreadDetail);
+router.get('/:id', forumController.getThreadById);
 
-// Private: Harus Login buat posting/reply
-router.post('/', auth, uploadForum.array('images', 5), forumController.createThread);
+router.post('/', auth, forumController.createThread);
 router.post('/:id/reply', auth, forumController.createReply);
-router.delete('/:id', auth, forumController.deleteThread); // Route Hapus
+router.delete('/:id', auth, forumController.deleteThread);
 
 module.exports = router;

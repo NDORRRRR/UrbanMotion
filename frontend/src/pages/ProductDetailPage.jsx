@@ -10,13 +10,13 @@ function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useAuth();
-  
+
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [activeImage, setActiveImage] = useState('');
-  
+
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [sizeList, setSizeList] = useState([]);
@@ -31,9 +31,9 @@ function ProductDetailPage() {
         const data = res.data;
         setProduct(data);
 
-        if(data.images && data.images.length > 0) setActiveImage(data.images[0]);
+        if (data.images && data.images.length > 0) setActiveImage(data.images[0]);
         else setActiveImage(data.image_url);
-        
+
         // Parse Size
         if (data.sizes) {
           const parsedSizes = data.sizes.split(',').map(s => s.trim()).filter(s => s);
@@ -62,13 +62,13 @@ function ProductDetailPage() {
     let newQty = quantity + val;
 
     if (newQty < 1) {
-        newQty = 1; 
-        toast('Minimal beli 1 pasang ya Bos', { icon: '😅' });
+      newQty = 1;
+      toast('Minimal beli 1 pasang ya Bos', { icon: '😅' });
     }
 
     if (newQty > stockAvailable) {
-        newQty = stockAvailable;
-        toast.error(`Waduh, stok cuma sisa ${stockAvailable} pasang!`);
+      newQty = stockAvailable;
+      toast.error(`Waduh, stok cuma sisa ${stockAvailable} pasang!`);
     }
 
     setQuantity(newQty);
@@ -80,7 +80,7 @@ function ProductDetailPage() {
       navigate('/login');
       return;
     }
-    
+
     if (!selectedSize) {
       toast.error('⚠️ Pilih ukuran sepatu dulu!');
       return;
@@ -89,15 +89,15 @@ function ProductDetailPage() {
     const toastId = toast.loading('Sedang memproses...');
 
     try {
-      await api.post('/cart', { 
-        productId: product.id, 
+      await api.post('/cart', {
+        productId: product.id,
         quantity: quantity,
-        size: selectedSize 
+        size: selectedSize
       });
 
       if (isDirectBuy) {
         toast.dismiss(toastId);
-        navigate('/cart'); 
+        navigate('/cart');
       } else {
         toast.success(`Size ${selectedSize} (x${quantity}) masuk keranjang!`, { id: toastId });
       }
@@ -112,18 +112,18 @@ function ProductDetailPage() {
   return (
     <div className="detail-page-wrapper">
       <Toaster position="top-center" />
-      
+
       <div className="detail-container">
-        
+
         <div className="gallery-container">
           <div className="main-image-wrapper">
-             <img src={activeImage} alt={product.name} className="main-image" />
+            <img src={activeImage} alt={product.name} className="main-image" />
           </div>
           <div className="thumb-grid">
             {product.images && product.images.map((img, idx) => (
-              <img 
-                key={idx} 
-                src={img} 
+              <img
+                key={idx}
+                src={img}
                 alt={`Thumbnail ${idx + 1}`}
                 className={`thumb-img ${activeImage === img ? 'active' : ''}`}
                 onMouseEnter={() => setActiveImage(img)}
@@ -135,9 +135,9 @@ function ProductDetailPage() {
 
         <div className="product-info-section">
           <h1 className="product-title">{product.name}</h1>
-          <div className="product-meta" style={{color: 'var(--text-muted)', marginBottom: '10px'}}>
+          <div className="product-meta" style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>
             <span>{product.brand}</span>
-            <span className="separator" style={{margin: '0 8px'}}>|</span>
+            <span className="separator" style={{ margin: '0 8px' }}>|</span>
             <span>Stok: <strong>{product.stock}</strong></span>
           </div>
 
@@ -163,50 +163,50 @@ function ProductDetailPage() {
           <div className="variant-row">
             <span className="variant-label">Jumlah</span>
             <div className="qty-selector">
-                <button 
-                    className="qty-btn" 
-                    type="button"
-                    onClick={() => handleQtyChange(-1)}
-                >-</button>
-                
-                <input 
-                    type="text" 
-                    className="qty-input" 
-                    value={quantity} 
-                    readOnly 
-                />
-                
-                <button 
-                    className="qty-btn" 
-                    type="button" 
-                    onClick={() => handleQtyChange(1)}
-                >+</button>
+              <button
+                className="qty-btn"
+                type="button"
+                onClick={() => handleQtyChange(-1)}
+              >-</button>
+
+              <input
+                type="text"
+                className="qty-input"
+                value={quantity}
+                readOnly
+              />
+
+              <button
+                className="qty-btn"
+                type="button"
+                onClick={() => handleQtyChange(1)}
+              >+</button>
             </div>
           </div>
 
           <div className="action-buttons">
             <button className="btn-add-cart" onClick={() => handleTransaction(false)} disabled={product.stock === 0}>
-                + Keranjang
+              + Keranjang
             </button>
             <button className="btn-buy-now" onClick={() => handleTransaction(true)} disabled={product.stock === 0}>
-                Beli Sekarang
+              Beli Sekarang
             </button>
           </div>
         </div>
       </div>
 
-      <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
-         <h3 className="section-header">Deskripsi</h3>
-         <p className="product-desc-text">{product.description || 'Tidak ada deskripsi.'}</p>
+      <div className="detail-container" style={{ marginTop: '20px', display: 'block' }}>
+        <h3 className="section-header">Deskripsi</h3>
+        <p className="product-desc-text">{product.description || 'Tidak ada deskripsi.'}</p>
       </div>
-      
+
       {relatedProducts.length > 0 && (
-          <div className="detail-container" style={{marginTop:'20px', display:'block'}}>
-             <h3 className="section-header">Produk Serupa</h3>
-             <div className="related-grid">
-                 {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
-             </div>
+        <div className="detail-container" style={{ marginTop: '20px', display: 'block' }}>
+          <h3 className="section-header">Produk Serupa</h3>
+          <div className="related-grid">
+            {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
+        </div>
       )}
     </div>
   );

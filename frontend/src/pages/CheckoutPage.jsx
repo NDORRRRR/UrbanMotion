@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-// const MIDTRANS_SCRIPT_URL = 'https://app.sandbox.midtrans.com/snap/snap.js';
-// const MIDTRANS_CLIENT_KEY = 'Mid-client-WAQ7tAcoBl-k3nZU'; 
+
 
 const loadMidtransScript = () => {
     return new Promise((resolve, reject) => {
@@ -12,7 +11,6 @@ const loadMidtransScript = () => {
             return;
         }
 
-        // Fetch client key from backend
         api.get('/config/midtrans-key')
             .then(res => {
                 const script = document.createElement('script');
@@ -102,10 +100,8 @@ function CheckoutPage() {
                     onSuccess: async function (result) {
                         console.log('Payment success:', result);
 
-                        // Auto-confirm payment status
                         try {
                             await api.post(`/orders/${orderId}/confirm-payment`);
-                            console.log('Payment status updated');
                         } catch (error) {
                             console.error('Failed to confirm payment:', error);
                         }

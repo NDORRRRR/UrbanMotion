@@ -10,13 +10,9 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Auto-set Content-Type for non-FormData requests
     if (!(config.data instanceof FormData)) {
       config.headers['Content-Type'] = 'application/json';
     }
-    // For FormData, let browser auto-set multipart/form-data
-
     return config;
   },
   (error) => Promise.reject(error)

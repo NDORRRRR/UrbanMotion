@@ -4,11 +4,10 @@ const auth = require('../middleware/authMiddleware');
 const adminOnly = require('../middleware/adminMiddleware');
 const adminProductController = require('../controllers/adminProductController');
 
-// All routes require authentication + admin role
-router.use(auth, adminOnly);
+router.use(auth);
+router.use(adminOnly);
 
-// Product moderation
-router.get('/', adminProductController.getAllProducts);
+router.get('/', adminProductController.getPendingProducts);
 router.get('/pending', adminProductController.getPendingProducts);
 router.put('/:id/approve', adminProductController.approveProduct);
 router.put('/:id/reject', adminProductController.rejectProduct);

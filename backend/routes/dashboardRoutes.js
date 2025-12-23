@@ -4,21 +4,17 @@ const auth = require('../middleware/authMiddleware');
 const dashboardController = require('../controllers/dashboardController');
 const uploadProduct = require('../middleware/uploadMiddleware');
 
-// Stats & Products
-router.get('/stats', auth, dashboardController.getSellerStats);
-router.get('/products', auth, dashboardController.getSellerProducts);
-router.get('/orders', auth, dashboardController.getSellerOrders);
+router.get('/stats', dashboardController.getSellerStats);
+router.get('/products', dashboardController.getSellerProducts);
+router.get('/orders', dashboardController.getSellerOrders);
 
-// Product Management
-router.put('/products/:id', auth, dashboardController.updateProduct);
-router.delete('/products/:id', auth, dashboardController.deleteProduct);
+router.put('/products/:id', dashboardController.updateProduct);
+router.delete('/products/:id', dashboardController.deleteProduct);
 
-// Image Management
-router.get('/products/:id/images', auth, dashboardController.getProductImages);
+router.get('/products/:id/images', dashboardController.getProductImages);
 router.post('/products/:id/images', auth, uploadProduct.single('image'), dashboardController.addProductImage);
-router.delete('/products/:productId/images/:imageId', auth, dashboardController.deleteProductImage);
+router.delete('/products/:productId/images/:imageId', dashboardController.deleteProductImage);
 
-// Order Management
-router.put('/orders/:id/status', auth, dashboardController.updateOrderStatus);
+router.put('/orders/:orderId/status', dashboardController.updateOrderStatus);
 
 module.exports = router;

@@ -7,13 +7,6 @@ const db = require('../config/db');
 const adminOnly = async (req, res, next) => {
     try {
         // User already authenticated by auth middleware
-        const userId = req.user.id;
-
-        // Check if user is admin
-        const [users] = await db.query(
-            'SELECT role, banned_at FROM users WHERE id = ?',
-            [userId]
-        );
 
         if (users.length === 0) {
             return res.status(404).json({ message: 'User tidak ditemukan' });

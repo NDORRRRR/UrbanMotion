@@ -6,7 +6,7 @@ import api from '../services/api';
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState(''); // State username
+  const [username, setUsername] = useState('');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -58,16 +58,16 @@ function LoginPage() {
       {error && <div className="form-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        
+
         {/* Input Username (Hanya saat Register) */}
         {isRegisterMode && (
           <div className="form-group">
             <label>Username</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              required 
+              required
               placeholder="Username unik"
             />
           </div>
@@ -76,11 +76,11 @@ function LoginPage() {
         {/* Input Email */}
         <div className="form-group">
           <label>Email</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required 
+            required
             placeholder="contoh@email.com"
           />
         </div>
@@ -88,18 +88,18 @@ function LoginPage() {
         {/* Input Password */}
         <div className="form-group">
           <label>Password</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required 
+            required
             placeholder="Minimal 6 karakter"
           />
         </div>
 
         {/* Tombol Submit */}
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="btn-primary"
           style={{ width: '100%', marginTop: '10px' }}
@@ -112,7 +112,7 @@ function LoginPage() {
       {/* Link Ganti Mode */}
       <p className="form-switch">
         {isRegisterMode ? 'Sudah punya akun?' : 'Belum punya akun?'}
-        <span 
+        <span
           onClick={() => {
             setIsRegisterMode(!isRegisterMode);
             setError('');
