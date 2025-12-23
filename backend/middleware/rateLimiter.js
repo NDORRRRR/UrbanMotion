@@ -19,11 +19,10 @@ const paymentLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
     message: 'Terlalu banyak transaksi, coba lagi nanti.'
-},
 });
 
 module.exports = {
-    apiLimiter,
+    generalLimiter,
     authLimiter,
     paymentLimiter
 };
